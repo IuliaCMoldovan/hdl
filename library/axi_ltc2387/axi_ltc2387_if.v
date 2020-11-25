@@ -43,26 +43,16 @@ module axi_ltc2387_if #(
   parameter   IO_DELAY_GROUP = "adc_if_delay_group",
   parameter   DELAY_REFCLK_FREQUENCY = 200,
   parameter   TWOLANES = 0,       // 0 for Single Lane, 1 for Two Lanes
-  parameter   RESOLUTION = 16,    // 16 or 18 bits
-  parameter   TCLKDCO = 2.3) (
+  parameter   RESOLUTION = 16)  (  // 16 or 18 bits
 
   // adc interface
 
-  input                    ref_clk,
   input                    dco_p,
   input                    dco_n,
-  output                   clk_en,
-  output                   cnv,
   input                    da_p,
   input                    da_n,
   input                    db_p,
   input                    db_n,
-
-  // interface outputs
-
-  output                  adc_clk,
-  output  reg [31:0]      adc_data,
-  output  reg             adc_valid,
 
   // delay control signals
 
@@ -76,49 +66,17 @@ module axi_ltc2387_if #(
 
   // local wires and registers
 
-  reg                     clk_p = 1'b0;
-  //reg                     cnv = 1'b0;
   reg                     dco = 1'b0;
   reg                     last_dco;
   reg         [3:0]       num_dco = (RESOLUTION == 18) ?
 	                              (TWOLANES == 0) ? 'h9 : 'h5 :
 				      (TWOLANES == 0) ? 'h8 : 'h4;
-  reg         [5:0]       dco_en_cnt;
-  reg         [4:0]       adc_clk_cnt = 5'd0;
   reg                     two_lanes = TWOLANES;
   reg  [RESOLUTION+1:0]   adc_data_d ='b0;
 
-  // internal registers
-
-  reg         [8:0]       adc_data_p = 'd0;
-  reg         [8:0]       adc_data_n = 'd0;
-
-  // internal signals
-
-  wire        [8:0]       adc_data_p_s;
-  wire        [8:0]       adc_data_n_s;
   wire        [1:0]       rx_data_a_s;
   wire        [1:0]       rx_data_b_s;
 
-
-  always @(posedge ref_clk) begin
-    if (adc_clk_cnt < RESOLUTION-1 )
-      begin
-        adc_clk_cnt <= adc_clk_cnt + 1;
-        cnv <= 1'b0;
-      end else begin
-        adc_clk_cnt <= 4'd0 ;
-        cnv <= 1'b1;
-      end
-  end
-
-  always @(posedge ref_clk) begin
-    if (adc_clk_cnt < num_dco) begin
-      clk_en <= 1'b1;
-    end else begin
-      clk_en <= 1'b0;
-    end
-  end
 
   always @(posedge dco) begin
     if (two_lanes == 0) begin

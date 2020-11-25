@@ -58,7 +58,7 @@ module axi_ltc2387 #(
   input                   adc_db_in_n,
   output                  cnv,
   output                  clk_en,
-  
+
   // delay interface
 
   input                   delay_clk,
@@ -152,16 +152,12 @@ module axi_ltc2387 #(
     .FPGA_TECHNOLOGY (FPGA_TECHNOLOGY),
     .IO_DELAY_GROUP (IO_DELAY_GROUP))
   i_if (
-    .ref_clk (ref_clk),
-    .clk_p (clk_p),
-    .clk_n (clk_n),
+    .da_p (da_p),
+    .da_n (da_n),
+    .db_p (db_p),
+    .db_n (db_n),
     .dco_p (dco_p),
     .dco_n (dco_n),
-    .cnv (cnv),
-    .clk_en (clk_en),
-    .adc_clk (adc_clk),
-    .adc_data (adc_data_s),
-    .adc_status (adc_status_s),
     .up_clk (up_clk),
     .up_dld (up_dld_s),
     .up_dwdata (up_dwdata_s),
