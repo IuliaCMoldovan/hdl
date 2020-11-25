@@ -57,7 +57,7 @@ module axi_ltc2387 #(
   input                   adc_db_in_p,
   input                   adc_db_in_n,
   output                  cnv,
-  output                  cnv_en,
+  output                  clk_en,
   
   // delay interface
 
@@ -154,11 +154,11 @@ module axi_ltc2387 #(
   i_if (
     .ref_clk (ref_clk),
     .clk_p (clk_p),
-    .clk_p (clk_p),
+    .clk_n (clk_n),
     .dco_p (dco_p),
     .dco_n (dco_n),
     .cnv (cnv),
-    .cnv_en (cnv_en),
+    .clk_en (clk_en),
     .adc_clk (adc_clk),
     .adc_data (adc_data_s),
     .adc_status (adc_status_s),

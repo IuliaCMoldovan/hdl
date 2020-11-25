@@ -51,7 +51,7 @@ module axi_ltc2387_if #(
   input                    ref_clk,
   input                    dco_p,
   input                    dco_n,
-  output                   dco_en,
+  output                   clk_en,
   output                   cnv,
   input                    da_p,
   input                    da_n,
@@ -77,7 +77,7 @@ module axi_ltc2387_if #(
   // local wires and registers
 
   reg                     clk_p = 1'b0;
-  reg                     cnv = 1'b0;
+  //reg                     cnv = 1'b0;
   reg                     dco = 1'b0;
   reg                     last_dco;
   reg         [3:0]       num_dco = (RESOLUTION == 18) ?
@@ -101,7 +101,7 @@ module axi_ltc2387_if #(
   wire        [1:0]       rx_data_b_s;
 
 
-  always @(posedge clk_p) begin
+  always @(posedge ref_clk) begin
     if (adc_clk_cnt < RESOLUTION-1 )
       begin
         adc_clk_cnt <= adc_clk_cnt + 1;
@@ -112,11 +112,11 @@ module axi_ltc2387_if #(
       end
   end
 
-  always @(posedge clk_p) begin
+  always @(posedge ref_clk) begin
     if (adc_clk_cnt < num_dco) begin
-      dco_en <= 1'b1;
+      clk_en <= 1'b1;
     end else begin
-      dco_en <= 1'b0;
+      clk_en <= 1'b0;
     end
   end
 
