@@ -53,6 +53,8 @@ module axi_ltc2387_if #(
   input                    da_n,
   input                    db_p,
   input                    db_n,
+  output                   data_valid,
+  output [RESOLUTION-1:0]  adc_data,
 
   // delay control signals
 
@@ -66,7 +68,7 @@ module axi_ltc2387_if #(
 
   // local wires and registers
 
-  reg                     dco = 1'b0;
+  reg                     dco;
   reg                     last_dco;
   reg         [3:0]       num_dco = (RESOLUTION == 18) ?
 	                              (TWOLANES == 0) ? 'h9 : 'h5 :
@@ -77,6 +79,20 @@ module axi_ltc2387_if #(
   wire        [1:0]       rx_data_a_s;
   wire        [1:0]       rx_data_b_s;
 
+  wire                    dco_cnt = 1'b0;
+  wire                    data_valid_s = 1'b0 ;
+
+
+
+  always @(posedge dco) begin
+    if (dco_cnt < num_dco) begin
+      dco_cnt <= dco_cnt +1;
+      data_valid_s <= 1'b0
+    end else begin
+      dco_cnt <= 0;
+      data_valid_s <= 1'b1;
+    end
+  end
 
   always @(posedge dco) begin
     if (two_lanes == 0) begin
@@ -86,7 +102,7 @@ module axi_ltc2387_if #(
     end
   end
 
-  always @(posedge last_dco) begin
+  always @(posedge data_valid_s) begin
     if (two_lanes == 0) begin
       adc_data <= adc_data_d[RESOLUTION-1:0];
     end else begin
