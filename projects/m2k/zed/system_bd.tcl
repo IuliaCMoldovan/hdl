@@ -1,7 +1,6 @@
 source ../../common/zed/zed_system_bd.tcl
 
 set_property name sys_100m_rstgen [get_bd_cells sys_200m_rstgen]
-set_property -dict [list CONFIG.ASYNC_CLK_REQ_SRC.VALUE_SRC USER CONFIG.ASYNC_CLK_SRC_DEST.VALUE_SRC USER CONFIG.ASYNC_CLK_DEST_REQ.VALUE_SRC USER] [get_bd_cells axi_hdmi_dma]
 ad_ip_parameter sys_ps7 CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ 100.0
 
 set video_dma_clocks [list \
