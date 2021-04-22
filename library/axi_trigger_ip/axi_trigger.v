@@ -112,7 +112,7 @@ module axi_trigger #(
   input		      	   s_axi_arvalid,
   input		[ 6:0]	   s_axi_araddr,
   input		[ 2:0]	   s_axi_arprot,
-  input                s_axi_rready,
+  input				   s_axi_rready,
   output	      	   s_axi_awready,
   output	      	   s_axi_wready,
   output	      	   s_axi_bvalid,
@@ -128,16 +128,16 @@ module axi_trigger #(
   reg				   trigger_int;
   
   // internal signals
-  wire           	   up_clk;
-  wire           	   up_rstn;
-  wire	    [ 4:0]     up_waddr;
-  wire	    [31:0]     up_wdata;
-  wire	               up_wack;
-  wire	               up_wreq;
-  wire	               up_rack;
-  wire	    [31:0]     up_rdata;
-  wire	               up_rreq;
-  wire	    [ 4:0]     up_raddr;
+  wire		      	   up_clk;
+  wire		      	   up_rstn;
+  wire		[ 4:0]	   up_waddr;
+  wire		[31:0]	   up_wdata;
+  wire		      	   up_wack;
+  wire		      	   up_wreq;
+  wire		      	   up_rack;
+  wire		[31:0]	   up_rdata;
+  wire		      	   up_rreq;
+  wire		[ 4:0]	   up_raddr;
   // ---------------------------------------------------------------------------
   
   // assign outputs 
