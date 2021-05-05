@@ -35,6 +35,16 @@ create_bd_port -dir I -from 31 -to 0 gpio1_i
 create_bd_port -dir O -from 31 -to 0 gpio1_o
 create_bd_port -dir O -from 31 -to 0 gpio1_t
 
+# interrupts
+
+create_bd_port -dir I -type intr mb_intr_06
+create_bd_port -dir I -type intr mb_intr_07
+create_bd_port -dir I -type intr mb_intr_08
+create_bd_port -dir I -type intr mb_intr_12
+create_bd_port -dir I -type intr mb_intr_13
+create_bd_port -dir I -type intr mb_intr_14
+create_bd_port -dir I -type intr mb_intr_15
+
 set_property -dict [list CONFIG.POLARITY {ACTIVE_HIGH}] [get_bd_ports sys_rst]
 
 # instance: microblaze - processor
@@ -185,6 +195,15 @@ ad_connect sys_cpu_reset  sys_rstgen/peripheral_reset
 ad_connect sys_cpu_resetn sys_rstgen/peripheral_aresetn
 ad_connect sys_200m_reset  sys_200m_rstgen/peripheral_reset
 ad_connect sys_200m_resetn sys_200m_rstgen/peripheral_aresetn
+
+# 2017
+ad_connect sys_cpu_clk  sys_rstgen/slowest_sync_clk
+ad_connect sys_cpu_clk  sys_mb/Clk
+ad_connect sys_cpu_clk  sys_dlmb/LMB_Clk
+ad_connect sys_cpu_clk  sys_ilmb/LMB_Clk
+ad_connect sys_cpu_clk  sys_dlmb_cntlr/LMB_Clk
+ad_connect sys_cpu_clk  sys_ilmb_cntlr/LMB_Clk
+ad_connect sys_cpu_clk  axi_spi/ext_spi_clk
 
 # generic system clocks pointers
 
