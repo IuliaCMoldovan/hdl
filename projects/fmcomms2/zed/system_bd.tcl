@@ -45,7 +45,7 @@ ad_connect adc_trigger/data_b_trig        				util_cpack_trigger/fifo_wr_data_1
 ad_connect adc_trigger/data_valid_a_trig  				util_cpack_trigger/enable_0
 ad_connect adc_trigger/data_valid_b_trig  				util_cpack_trigger/enable_1
 
-ad_connect adc_trigger/trigger_out         				util_cpack_trigger/fifo_wr_en
+ad_connect adc_trigger/data_valid_a_trig         		util_cpack_trigger/fifo_wr_en
 
 ad_connect util_ad9361_divclk/clk_out 					axi_dmac_trigger/fifo_wr_clk
 ad_connect util_cpack_trigger/packed_fifo_wr 			axi_dmac_trigger/fifo_wr
