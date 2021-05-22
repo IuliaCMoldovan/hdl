@@ -37,26 +37,27 @@
 
 module trigger_ip_regmap (
   input						clk,
-  
+		
   output		[31:0]  	fifo_depth,
+	
   output		[31:0]		edge_detect_enable_0,
   output		[31:0]		rise_edge_enable_0,
   output		[31:0]		fall_edge_enable_0,
   output		[31:0]		low_level_enable_0,
   output		[31:0]		high_level_enable_0,
-  
+				
   output		[31:0]		edge_detect_enable_1,
   output		[31:0]		rise_edge_enable_1,
   output		[31:0]		fall_edge_enable_1,
   output		[31:0]		low_level_enable_1,
   output		[31:0]		high_level_enable_1,
-  				          		
+				
   output		[31:0]		edge_detect_enable_2,
   output		[31:0]		rise_edge_enable_2,
   output		[31:0]		fall_edge_enable_2,
   output		[31:0]		low_level_enable_2,
   output		[31:0]		high_level_enable_2,
-  
+				
   output		[31:0]		edge_detect_enable_3,
   output		[31:0]		rise_edge_enable_3,
   output		[31:0]		fall_edge_enable_3,
@@ -64,10 +65,14 @@ module trigger_ip_regmap (
   output		[31:0]		high_level_enable_3,
 	
 	
-  // bit 3 is used for setting the internal trigger condition,
-  // between the bits that were selected to be monitored 
-  // bits [2:0] are used for defining the relationship 
-  // between the internal and external trigger 
+  // condition for internal trigger
+  // bit 3: OR(0) / AND(1): the internal trigger condition, 
+  // bits [2:0] - relationship between internal and external trigger
+  // 0 - internal trigger only
+  // 1 - external trigger only
+  // 2 - internal AND external trigger
+  // 3 - internal OR external trigger
+  // 4 - internal XOR external trigger
   output		[ 3:0]		trigger_logic,
   output					rst,
   
@@ -90,6 +95,7 @@ module trigger_ip_regmap (
   reg			[ 3:0]		up_trigger_logic = 0;
   
   reg   		[31:0]  	up_fifo_depth = 0;
+  
   reg			[31:0]		up_edge_detect_enable_0 = 0;
   reg			[31:0]		up_rise_edge_enable_0 = 0;
   reg			[31:0]		up_fall_edge_enable_0 = 0;
@@ -231,6 +237,7 @@ module trigger_ip_regmap (
     end
   end
 
+
   // processor read interface
   always @(negedge up_rstn or posedge up_clk) begin
   	if (up_rstn == 0) begin
@@ -244,7 +251,6 @@ module trigger_ip_regmap (
   	  	  5'h1:up_rdata <= up_scratch;
   	  	  5'h2:up_rdata <= {25'h0,up_trigger_logic};
   	  	  5'h3:up_rdata <= up_fifo_depth;
-  	  	  
   	  	  
   	  	  5'h10:up_rdata <= up_edge_detect_enable_0;
   	  	  5'h11:up_rdata <= up_rise_edge_enable_0;

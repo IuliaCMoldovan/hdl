@@ -63,34 +63,6 @@ module axi_trigger #(
   input  [DW1-1 : 0]   probe1,
   input  [DW2-1 : 0]   probe2,
   input  [DW3-1 : 0]   probe3,
-  
-  // masks for data that comes from PROBE 0
-  input  [DW0-1 : 0]   edge_detect_enable_0,
-  input  [DW0-1 : 0]   rise_edge_enable_0,
-  input  [DW0-1 : 0]   fall_edge_enable_0,
-  input  [DW0-1 : 0]   low_level_enable_0,
-  input  [DW0-1 : 0]   high_level_enable_0,
-  
-  // masks for data that comes from PROBE 1
-  input  [DW1-1 : 0]   edge_detect_enable_1,
-  input  [DW1-1 : 0]   rise_edge_enable_1,
-  input  [DW1-1 : 0]   fall_edge_enable_1,
-  input  [DW1-1 : 0]   low_level_enable_1,
-  input  [DW1-1 : 0]   high_level_enable_1,
-  
-  // masks for data that comes from PROBE 2
-  input  [DW2-1 : 0]   edge_detect_enable_2,
-  input  [DW2-1 : 0]   rise_edge_enable_2,
-  input  [DW2-1 : 0]   fall_edge_enable_2,
-  input  [DW2-1 : 0]   low_level_enable_2,
-  input  [DW2-1 : 0]   high_level_enable_2,
-  
-  // masks for data that comes from PROBE 3
-  input  [DW3-1 : 0]   edge_detect_enable_3,
-  input  [DW3-1 : 0]   rise_edge_enable_3,
-  input  [DW3-1 : 0]   fall_edge_enable_3,
-  input  [DW3-1 : 0]   low_level_enable_3,
-  input  [DW3-1 : 0]   high_level_enable_3,
   	
   output     		   trigger_out,
   output [NB_SELECTED-1 : 0] data_valids,	
@@ -122,6 +94,34 @@ module axi_trigger #(
   output	[31:0]	   s_axi_rdata,
   output	[ 1:0]	   s_axi_rresp
 );
+  
+  // masks for data that comes from PROBE 0
+  wire  [DW0-1 : 0]   edge_detect_enable_0;
+  wire  [DW0-1 : 0]   rise_edge_enable_0;
+  wire  [DW0-1 : 0]   fall_edge_enable_0;
+  wire  [DW0-1 : 0]   low_level_enable_0;
+  wire  [DW0-1 : 0]   high_level_enable_0;
+  
+  // masks for data that comes from PROBE 1
+  wire  [DW1-1 : 0]   edge_detect_enable_1;
+  wire  [DW1-1 : 0]   rise_edge_enable_1;
+  wire  [DW1-1 : 0]   fall_edge_enable_1;
+  wire  [DW1-1 : 0]   low_level_enable_1;
+  wire  [DW1-1 : 0]   high_level_enable_1;
+  
+  // masks for data that comes from PROBE 2
+  wire  [DW2-1 : 0]   edge_detect_enable_2;
+  wire  [DW2-1 : 0]   rise_edge_enable_2;
+  wire  [DW2-1 : 0]   fall_edge_enable_2;
+  wire  [DW2-1 : 0]   low_level_enable_2;
+  wire  [DW2-1 : 0]   high_level_enable_2;
+  
+  // masks for data that comes from PROBE 3
+  wire  [DW3-1 : 0]   edge_detect_enable_3;
+  wire  [DW3-1 : 0]   rise_edge_enable_3;
+  wire  [DW3-1 : 0]   fall_edge_enable_3;
+  wire  [DW3-1 : 0]   low_level_enable_3;
+  wire  [DW3-1 : 0]   high_level_enable_3;
 
   wire [NB_SELECTED-1 : 0] trigger_out_aux;
   reg              	   trigger_out_reg; 
@@ -151,6 +151,7 @@ module axi_trigger #(
   // signal name changes
   assign trigger_out = trigger_out_reg;
  
+ 
   // determine if internal trigger occured
   always @ (*) begin
 	  // OR
@@ -177,6 +178,7 @@ module axi_trigger #(
     endcase
   end
    
+   
   // probe 0 
   probe_trigger #(
     .DW (DW0)
@@ -195,7 +197,6 @@ module axi_trigger #(
     .trigger_rel (trigger_rel[2:0]),
     .trigger_out (trigger_out_aux[0])
   );
- 
  
   // probe 1 
   probe_trigger #(
@@ -235,7 +236,6 @@ module axi_trigger #(
     .trigger_out (trigger_out_aux[2])
   );
  
- 
   // probe 3 
   probe_trigger #(
     .DW (DW3)
@@ -259,6 +259,53 @@ module axi_trigger #(
   // signal name changes 
   assign up_clk = s_axi_aclk;
   assign up_rstn = s_axi_aresetn;
+  
+  
+  // regmap
+  trigger_ip_regmap i_regmap (
+    .clk (clk),
+    
+    .fifo_depth (fifo_depth),
+    
+    .edge_detect_enable_0 (edge_detect_enable_0),
+    .rise_edge_enable_0 (rise_edge_enable_0),
+    .fall_edge_enable_0 (fall_edge_enable_0),
+    .low_level_enable_0 (low_level_enable_0),
+    .high_level_enable_0 (high_level_enable_0),
+    
+    .edge_detect_enable_1 (edge_detect_enable_1),
+    .rise_edge_enable_1 (rise_edge_enable_1),
+    .fall_edge_enable_1 (fall_edge_enable_1),
+    .low_level_enable_1 (low_level_enable_1),
+    .high_level_enable_1 (high_level_enable_1),
+  
+    .edge_detect_enable_2 (edge_detect_enable_2),
+    .rise_edge_enable_2 (rise_edge_enable_2),
+    .fall_edge_enable_2 (fall_edge_enable_2),
+    .low_level_enable_2 (low_level_enable_2),
+    .high_level_enable_2 (high_level_enable_2),
+  
+    .edge_detect_enable_3 (edge_detect_enable_3),
+    .rise_edge_enable_3 (rise_edge_enable_3),
+    .fall_edge_enable_3 (fall_edge_enable_3),
+    .low_level_enable_3 (low_level_enable_3),
+    .high_level_enable_3 (high_level_enable_3),
+    
+    .trigger_logic (trigger_rel),
+    .rst (rst),
+    
+    // bus interface
+    .up_rstn (up_rstn),
+    .up_clk (up_clk),
+    .up_wreq (up_wreq),
+    .up_waddr (up_waddr),
+    .up_wdata (up_wdata),
+    .up_wack (up_wack),
+    .up_rreq (up_rreq),
+    .up_raddr (up_raddr),
+    .up_rdata (up_rdata),
+    .up_rack (up_rack)
+  );
   
   
   // axi interface
@@ -293,56 +340,6 @@ module axi_trigger #(
     .up_rdata (up_rdata),
     .up_rack (up_rack)
   );
-  
-
-//// after validating the design, this will be uncommented, and 
-//// the inputs for the masks, will be removed
-//// regmap
-//trigger_ip_regmap i_regmap (
-//  .clk (clk),
-//  
-//  .fifo_depth (fifo_depth),
-//  
-//  .edge_detect_enable_0 (edge_detect_enable_0),
-//  .rise_edge_enable_0 (rise_edge_enable_0),
-//  .fall_edge_enable_0 (fall_edge_enable_0),
-//  .low_level_enable_0 (low_level_enable_0),
-//  .high_level_enable_0 (high_level_enable_0),
-//  
-//  .edge_detect_enable_1 (edge_detect_enable_1),
-//  .rise_edge_enable_1 (rise_edge_enable_1),
-//  .fall_edge_enable_1 (fall_edge_enable_1),
-//  .low_level_enable_1 (low_level_enable_1),
-//  .high_level_enable_1 (high_level_enable_1),
-//
-//.edge_detect_enable_2 (edge_detect_enable_2),
-//  .rise_edge_enable_2 (rise_edge_enable_2),
-//  .fall_edge_enable_2 (fall_edge_enable_2),
-//  .low_level_enable_2 (low_level_enable_2),
-//  .high_level_enable_2 (high_level_enable_2),
-//
-//.edge_detect_enable_3 (edge_detect_enable_3),
-//  .rise_edge_enable_3 (rise_edge_enable_3),
-//  .fall_edge_enable_3 (fall_edge_enable_3),
-//  .low_level_enable_3 (low_level_enable_3),
-//  .high_level_enable_3 (high_level_enable_3),
-//  
-//  .trigger_logic (trigger_rel),
-//  .rst (rst),
-//  
-//  // bus interface
-//  .up_rstn (up_rstn),
-//  .up_clk (up_clk),
-//  .up_wreq (up_wreq),
-//  .up_waddr (up_waddr),
-//  .up_wdata (up_wdata),
-//  .up_wack (up_wack),
-//  .up_rreq (up_rreq),
-//  .up_raddr (up_raddr),
-//  .up_rdata (up_rdata),
-//  .up_rack (up_rack)
-//);
-	
 endmodule
 
 // ***************************************************************************
