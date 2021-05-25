@@ -28,28 +28,29 @@ ad_ip_instance util_cpack2 util_cpack_trigger { \
 ad_connect util_ad9361_adc_fifo/dout_clk 				adc_trigger/clk	
 ad_connect util_ad9361_adc_fifo/dout_rstn 				adc_trigger/reset
 
-ad_connect util_ad9361_adc_fifo/dout_data_0 			adc_trigger/data_a
-ad_connect util_ad9361_adc_fifo/dout_data_1 			adc_trigger/data_b
-ad_connect util_ad9361_adc_fifo/dout_valid_0 			adc_trigger/data_valid_a
-ad_connect util_ad9361_adc_fifo/dout_valid_1 			adc_trigger/data_valid_b
+ad_connect util_ad9361_adc_fifo/dout_data_0 				adc_trigger/data_a
+ad_connect util_ad9361_adc_fifo/dout_data_1 				adc_trigger/data_b
+ad_connect util_ad9361_adc_fifo/dout_valid_0 				adc_trigger/data_valid_a
+ad_connect util_ad9361_adc_fifo/dout_valid_1 				adc_trigger/data_valid_b
 
 ad_connect sys_rstgen/peripheral_aresetn 				adc_trigger/s_axi_aresetn
 
-ad_connect trigger_o 									adc_trigger/trigger_o
-ad_connect trigger_t 									adc_trigger/trigger_t
+ad_connect trigger_o 							adc_trigger/trigger_o
+ad_connect trigger_t 							adc_trigger/trigger_t
 
 ad_connect util_ad9361_adc_fifo/dout_clk 				util_cpack_trigger/clk	
-ad_connect util_ad9361_divclk_reset/peripheral_reset 	util_cpack_trigger/reset
+ad_connect util_ad9361_divclk_reset/peripheral_reset 			util_cpack_trigger/reset
 ad_connect adc_trigger/data_a_trig        				util_cpack_trigger/fifo_wr_data_0
 ad_connect adc_trigger/data_b_trig        				util_cpack_trigger/fifo_wr_data_1
 ad_connect adc_trigger/data_valid_a_trig  				util_cpack_trigger/enable_0
 ad_connect adc_trigger/data_valid_b_trig  				util_cpack_trigger/enable_1
 
-ad_connect adc_trigger/data_valid_a_trig         		util_cpack_trigger/fifo_wr_en
+ad_connect adc_trigger/data_valid_a_trig         			util_cpack_trigger/fifo_wr_en
 
+ad_connect util_cpack_trigger/packed_fifo_wr 				axi_dmac_trigger/fifo_wr
 ad_connect util_ad9361_divclk/clk_out 					axi_dmac_trigger/fifo_wr_clk
-ad_connect util_cpack_trigger/packed_fifo_wr 			axi_dmac_trigger/fifo_wr
-ad_connect $sys_cpu_resetn 								axi_dmac_trigger/m_dest_axi_aresetn
+ad_connect adc_trigger/trigger_out					axi_dmac_trigger/fifo_wr_sync
+ad_connect $sys_cpu_resetn 						axi_dmac_trigger/m_dest_axi_aresetn
 
 # interconnects
 ad_cpu_interconnect 0x43C00000 adc_trigger
@@ -69,4 +70,4 @@ ad_ip_parameter axi_ad9361 CONFIG.TDD_DISABLE 1
 
 
 # interrupts
-#ad_cpu_interrupt ps-13 mb-12 axi_dmac_trigger/irq
+ad_cpu_interrupt ps-10 mb-11 axi_dmac_trigger/irq
