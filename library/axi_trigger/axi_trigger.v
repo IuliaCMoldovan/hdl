@@ -42,22 +42,11 @@ module axi_trigger #(
   parameter   [ 9:0]   DW2 = 10'd4,
   parameter   [ 9:0]   DW3 = 10'd4) (
   
-  input 			   clk,
-  input 			   rst,
+  input                clk,
   
   input                trigger_ext,
-
-  // condition for internal trigger
-  // bit 3: OR(0) / AND(1): the internal trigger condition, 
-  // bits [2:0] - relationship between internal and external trigger
-  // 0 - internal trigger only
-  // 1 - external trigger only
-  // 2 - internal AND external trigger
-  // 3 - internal OR external trigger
-  // 4 - internal XOR external trigger
-  input  [ 3:0]        trigger_rel,
   
-  input  [NB_SELECTED-1 : 0] valid_probes,
+  input [NB_SELECTED-1 : 0] valid_probes,
   
   input  [DW0-1 : 0]   probe0,
   input  [DW1-1 : 0]   probe1,
@@ -72,72 +61,113 @@ module axi_trigger #(
   output    [31:0]     fifo_depth,
   
   // axi interface             
-  input         	   s_axi_aclk,
-  input         	   s_axi_aresetn,
-  input		           s_axi_awvalid,
-  input		[ 6:0]     s_axi_awaddr,
-  input		[ 2:0]	   s_axi_awprot,
-  input		      	   s_axi_wvalid,
-  input		[31:0]	   s_axi_wdata,
-  input		[ 3:0]	   s_axi_wstrb,
-  input		      	   s_axi_bready,
-  input		      	   s_axi_arvalid,
-  input		[ 6:0]	   s_axi_araddr,
-  input		[ 2:0]	   s_axi_arprot,
-  input				   s_axi_rready,
-  output	      	   s_axi_awready,
-  output	      	   s_axi_wready,
-  output	      	   s_axi_bvalid,
-  output	[ 1:0]	   s_axi_bresp,
-  output	      	   s_axi_arready,
-  output	      	   s_axi_rvalid,
-  output	[31:0]	   s_axi_rdata,
-  output	[ 1:0]	   s_axi_rresp
+  input                s_axi_aclk,
+  input                s_axi_aresetn,
+  input                s_axi_awvalid,
+  input     [ 6:0]     s_axi_awaddr,
+  input     [ 2:0]     s_axi_awprot,
+  input                s_axi_wvalid,
+  input     [31:0]     s_axi_wdata,
+  input     [ 3:0]     s_axi_wstrb,
+  input                s_axi_bready,
+  input                s_axi_arvalid,
+  input     [ 6:0]     s_axi_araddr,
+  input     [ 2:0]     s_axi_arprot,
+  input                s_axi_rready,
+  output               s_axi_awready,
+  output               s_axi_wready,
+  output               s_axi_bvalid,
+  output    [ 1:0]     s_axi_bresp,
+  output               s_axi_arready,
+  output               s_axi_rvalid,
+  output    [31:0]     s_axi_rdata,
+  output    [ 1:0]     s_axi_rresp
 );
   
+  // as wire, when regmap is instantiated
+  wire                 rst;
+  // as wire, when regmap is instantiated
+  // condition for internal trigger
+  // bit 3: OR(0) / AND(1): the internal trigger condition, 
+  // bits [2:0] - relationship between internal and external trigger
+  // 0 - internal trigger only
+  // 1 - external trigger only
+  // 2 - internal AND external trigger
+  // 3 - internal OR external trigger
+  // 4 - internal XOR external trigger
+  wire      [ 3:0]     trigger_rel;
+  
   // masks for data that comes from PROBE 0
-  wire  [DW0-1 : 0]   edge_detect_enable_0;
-  wire  [DW0-1 : 0]   rise_edge_enable_0;
-  wire  [DW0-1 : 0]   fall_edge_enable_0;
-  wire  [DW0-1 : 0]   low_level_enable_0;
-  wire  [DW0-1 : 0]   high_level_enable_0;
+  wire   [DW0-1 : 0]   edge_detect_enable_0;
+  wire   [DW0-1 : 0]   rise_edge_enable_0;
+  wire   [DW0-1 : 0]   fall_edge_enable_0;
+  wire   [DW0-1 : 0]   low_level_enable_0;
+  wire   [DW0-1 : 0]   high_level_enable_0;
   
   // masks for data that comes from PROBE 1
-  wire  [DW1-1 : 0]   edge_detect_enable_1;
-  wire  [DW1-1 : 0]   rise_edge_enable_1;
-  wire  [DW1-1 : 0]   fall_edge_enable_1;
-  wire  [DW1-1 : 0]   low_level_enable_1;
-  wire  [DW1-1 : 0]   high_level_enable_1;
+  wire   [DW1-1 : 0]   edge_detect_enable_1;
+  wire   [DW1-1 : 0]   rise_edge_enable_1;
+  wire   [DW1-1 : 0]   fall_edge_enable_1;
+  wire   [DW1-1 : 0]   low_level_enable_1;
+  wire   [DW1-1 : 0]   high_level_enable_1;
   
   // masks for data that comes from PROBE 2
-  wire  [DW2-1 : 0]   edge_detect_enable_2;
-  wire  [DW2-1 : 0]   rise_edge_enable_2;
-  wire  [DW2-1 : 0]   fall_edge_enable_2;
-  wire  [DW2-1 : 0]   low_level_enable_2;
-  wire  [DW2-1 : 0]   high_level_enable_2;
+  wire   [DW2-1 : 0]   edge_detect_enable_2;
+  wire   [DW2-1 : 0]   rise_edge_enable_2;
+  wire   [DW2-1 : 0]   fall_edge_enable_2;
+  wire   [DW2-1 : 0]   low_level_enable_2;
+  wire   [DW2-1 : 0]   high_level_enable_2;
   
   // masks for data that comes from PROBE 3
-  wire  [DW3-1 : 0]   edge_detect_enable_3;
-  wire  [DW3-1 : 0]   rise_edge_enable_3;
-  wire  [DW3-1 : 0]   fall_edge_enable_3;
-  wire  [DW3-1 : 0]   low_level_enable_3;
-  wire  [DW3-1 : 0]   high_level_enable_3;
+  wire   [DW3-1 : 0]   edge_detect_enable_3;
+  wire   [DW3-1 : 0]   rise_edge_enable_3;
+  wire   [DW3-1 : 0]   fall_edge_enable_3;
+  wire   [DW3-1 : 0]   low_level_enable_3;
+  wire   [DW3-1 : 0]   high_level_enable_3;
+  
+  
+  // limits for analog data to compare with
+  wire   [DW0-1 : 0]   limit_0;
+  wire   [DW1-1 : 0]   limit_1;
+  wire   [DW2-1 : 0]   limit_2;
+  wire   [DW3-1 : 0]   limit_3;
 
   wire [NB_SELECTED-1 : 0] trigger_out_aux;
-  reg              	   trigger_out_reg; 
-  reg				   trigger_int;
+  
+  // condition for the internal analog triggering;
+  // comparison between the probe and the limit
+  // 0 - lower than the limit 
+  // 1 - higher than the limit
+  // 2 - passing through high limit
+  // 3 - passing through low limit 
+  wire     [ 1:0]      trigger_analog_rel;
+  
+  // relationship between analog and digital trigger (on all probes)
+  // 0 - continuous triggering
+  // 1 - digital triggering 
+  // 2 - analog triggering 
+  // 3 - reserved
+  // 4 - dac OR adc triggering 
+  // 5 - dac AND adc triggering 
+  // 6 - dac XOR adc triggering 
+  // 7 - option 4 negated
+  // 8 - option 5 negated
+  // 9 - option 6 negated
+  wire       [ 3:0]    adc_dac_trigger_rel;
+  reg                  trigger_out_reg; 
+  reg                  trigger_int;
   
   // internal signals
-  wire		      	   up_clk;
-  wire		      	   up_rstn;
-  wire		[ 4:0]	   up_waddr;
-  wire		[31:0]	   up_wdata;
-  wire		      	   up_wack;
-  wire		      	   up_wreq;
-  wire		      	   up_rack;
-  wire		[31:0]	   up_rdata;
-  wire		      	   up_rreq;
-  wire		[ 4:0]	   up_raddr;
+  wire                 up_clk;
+  wire                 up_rstn;
+  wire       [ 4:0]    up_waddr;
+  wire       [31:0]    up_wdata;
+  wire                 up_wack;
+  wire                 up_wreq;
+  wire                 up_rack;
+  wire       [31:0]    up_rdata;
+  wire                 up_rreq;
+  wire       [ 4:0]    up_raddr;
   // ---------------------------------------------------------------------------
   
   // assign outputs 
@@ -167,7 +197,7 @@ module axi_trigger #(
   
   // check relationship between internal and external trigger
   always @ (*) begin
-    case (trigger_rel[2:0])
+    case (trigger_rel[2 : 0])
       3'd0: trigger_out_reg = trigger_int;
       3'd1: trigger_out_reg = trigger_ext;
       3'd2: trigger_out_reg = trigger_int & trigger_ext;
@@ -186,15 +216,16 @@ module axi_trigger #(
     .clk (clk),
     .rst (rst),
     .current_data (probe0),
+    .limit (limit_0),
     .valid (valid_probes[0]),
     .edge_detect_enable (edge_detect_enable_0),
     .rise_edge_enable (rise_edge_enable_0),
     .fall_edge_enable (fall_edge_enable_0),
     .low_level_enable (low_level_enable_0),
     .high_level_enable (high_level_enable_0),
-    .trigger_ext (trigger_ext),
-    .trigger_int (trigger_rel[3]),
-    .trigger_rel (trigger_rel[2:0]),
+    .trigger_int_cond (trigger_rel[3]),
+	.trigger_analog_rel (trigger_analog_rel[1:0]),
+    .adc_dac_trigger_rel (adc_dac_trigger_rel[3:0]),
     .trigger_out (trigger_out_aux[0])
   );
  
@@ -205,15 +236,16 @@ module axi_trigger #(
     .clk (clk),
     .rst (rst),
     .current_data (probe1),
+    .limit (limit_1),
     .valid (valid_probes[1]),
     .edge_detect_enable (edge_detect_enable_1),
     .rise_edge_enable (rise_edge_enable_1),
     .fall_edge_enable (fall_edge_enable_1),
     .low_level_enable (low_level_enable_1),
     .high_level_enable (high_level_enable_1),
-    .trigger_ext (trigger_ext),
-    .trigger_int (trigger_rel[3]),
-    .trigger_rel (trigger_rel[2:0]),
+    .trigger_int_cond (trigger_rel[3]),
+	.trigger_analog_rel (trigger_analog_rel[1:0]),
+    .adc_dac_trigger_rel (adc_dac_trigger_rel[3:0]),
     .trigger_out (trigger_out_aux[1])
   );
 
@@ -224,15 +256,16 @@ module axi_trigger #(
     .clk (clk),
     .rst (rst),
     .current_data (probe2),
+    .limit (limit_2),
     .valid (valid_probes[2]),
     .edge_detect_enable (edge_detect_enable_2),
     .rise_edge_enable (rise_edge_enable_2),
     .fall_edge_enable (fall_edge_enable_2),
     .low_level_enable (low_level_enable_2),
     .high_level_enable (high_level_enable_2),
-    .trigger_ext (trigger_ext),
-    .trigger_int (trigger_rel[3]),
-    .trigger_rel (trigger_rel[2:0]),
+    .trigger_int_cond (trigger_rel[3]),
+	.trigger_analog_rel (trigger_analog_rel[1:0]),
+    .adc_dac_trigger_rel (adc_dac_trigger_rel[3:0]),
     .trigger_out (trigger_out_aux[2])
   );
  
@@ -243,15 +276,16 @@ module axi_trigger #(
     .clk (clk),
     .rst (rst),
     .current_data (probe3),
+    .limit (limit_3),
     .valid (valid_probes[3]),
     .edge_detect_enable (edge_detect_enable_3),
     .rise_edge_enable (rise_edge_enable_3),
     .fall_edge_enable (fall_edge_enable_3),
     .low_level_enable (low_level_enable_3),
     .high_level_enable (high_level_enable_3),
-    .trigger_ext (trigger_ext),
-    .trigger_int (trigger_rel[3]),
-    .trigger_rel (trigger_rel[2:0]),
+    .trigger_int_cond (trigger_rel[3]),
+	.trigger_analog_rel (trigger_analog_rel[1:0]),
+    .adc_dac_trigger_rel (adc_dac_trigger_rel[3:0]),
     .trigger_out (trigger_out_aux[3])
   );
   
@@ -265,8 +299,17 @@ module axi_trigger #(
   trigger_ip_regmap i_regmap (
     .clk (clk),
     
+    .trigger_logic (trigger_rel),
+    .trigger_analog_rel (trigger_analog_rel),
+    .adc_dac_trigger_rel (adc_dac_trigger_rel),
+	
     .fifo_depth (fifo_depth),
     
+	.limit_0 (limit_0),
+	.limit_1 (limit_1),
+	.limit_2 (limit_2),
+	.limit_3 (limit_3),
+	
     .edge_detect_enable_0 (edge_detect_enable_0),
     .rise_edge_enable_0 (rise_edge_enable_0),
     .fall_edge_enable_0 (fall_edge_enable_0),
@@ -290,8 +333,7 @@ module axi_trigger #(
     .fall_edge_enable_3 (fall_edge_enable_3),
     .low_level_enable_3 (low_level_enable_3),
     .high_level_enable_3 (high_level_enable_3),
-    
-    .trigger_logic (trigger_rel),
+	
     .rst (rst),
     
     // bus interface
