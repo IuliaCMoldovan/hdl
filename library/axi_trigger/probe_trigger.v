@@ -38,7 +38,7 @@
 module probe_trigger #(
   parameter  [ 9:0]  DW = 10'd32) (
   
-  input 			 clk,
+  input              clk,
   input              rst,
   
   input  [DW-1 : 0]  current_data,
@@ -54,7 +54,7 @@ module probe_trigger #(
 
   // condition for internal trigger
   // OR(0) / AND(1): the internal trigger condition
-  input				 trigger_int_cond,
+  input              trigger_int_cond,
   
   // condition for the internal analog triggering;
   // comparison between the probe and the limit

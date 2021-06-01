@@ -38,7 +38,7 @@
 module dac_trigger #(
   parameter  [ 9:0]  DW = 10'd32) (
   
-  input 			 clk,
+  input              clk,
   input              rst,
   
   input  [DW-1 : 0]  current_data,
@@ -54,7 +54,7 @@ module dac_trigger #(
 
   // condition for internal trigger
   // OR(0) / AND(1): the internal trigger condition
-  input				 trigger_int_cond,
+  input              trigger_int_cond,
   
   output             trigger_out
 );
@@ -73,7 +73,7 @@ module dac_trigger #(
   reg	 [DW-1 : 0]  low_level_m;
   reg	 [DW-1 : 0]  high_level_m;
   
-  reg				 int_trigger_active;
+  reg                int_trigger_active;
   // ---------------------------------------------------------------------------
 	
   // signal name changes 

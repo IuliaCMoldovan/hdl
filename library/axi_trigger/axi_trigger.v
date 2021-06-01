@@ -53,7 +53,7 @@ module axi_trigger #(
   input  [DW2-1 : 0]   probe2,
   input  [DW3-1 : 0]   probe3,
   	
-  output     		   trigger_out,
+  output               trigger_out,
   output [NB_SELECTED-1 : 0] data_valids,	
   output [DW0 + DW1 + DW2 + DW3-1:0] adc_data,	
   
