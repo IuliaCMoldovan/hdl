@@ -93,6 +93,8 @@ module adc_trigger #(
     end
   end
   
+  // add comparison
+  
   
   // check relationship between internal and external trigger
   always @ (*) begin
