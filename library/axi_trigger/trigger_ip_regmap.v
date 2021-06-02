@@ -359,7 +359,7 @@ module trigger_ip_regmap (
   
   
   // clock domain crossing
-  up_xfer_cntrl #(.DATA_WIDTH(676)) i_xfer_cntrl (
+  up_xfer_cntrl #(.DATA_WIDTH(810)) i_xfer_cntrl (
   	.up_rstn (up_rstn),
   	.up_clk (up_clk),
   	.up_data_cntrl ({ up_trigger_logic,				//  4 
