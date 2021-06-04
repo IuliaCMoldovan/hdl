@@ -35,15 +35,16 @@
 
 `timescale 1ns/100ps
 
-module dac_trigger #(
+module digital_trigger #(
   parameter  [ 9:0]  DW = 10'd32) (
   
   input              clk,
   input              rst,
   
+  input              valid,
+  
   input  [DW-1 : 0]  current_data,
   input  [DW-1 : 0]  prev_data,
-  input              valid,
   
   // masks 
   input  [DW-1 : 0]  edge_detect_enable,

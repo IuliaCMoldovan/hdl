@@ -41,9 +41,12 @@ module probe_trigger #(
   input              clk,
   input              rst,
   
+  input              valid,
+  
   input  [DW-1 : 0]  current_data,
   input  [DW-1 : 0]  limit,
-  input              valid,
+  
+  input  [DW-1 : 0]  hysteresis,
   
   // masks 
   input  [DW-1 : 0]  edge_detect_enable,
@@ -122,13 +125,14 @@ module probe_trigger #(
     endcase
   end
   
-  // dac trigger
-  dac_trigger #(
+  // digital trigger
+  digital_trigger #(
     .DW (DW)
   ) digital_data_triggering (
     .clk (clk),
     .rst (rst),
     .current_data (current_data),
+    .prev_data(prev_data),
     .valid (valid),
     .edge_detect_enable (edge_detect_enable),
     .rise_edge_enable (rise_edge_enable),
@@ -146,8 +150,9 @@ module probe_trigger #(
   ) analog_data_triggering (
     .clk (clk),
     .rst (rst),
-    .probe (current_data),
+    .data (current_data),
     .limit (limit),
+    .hysteresis (hysteresis),
     .valid (valid),
     .trigger_analog_rel (trigger_analog_rel[1 : 0]),
     .trigger_out (trigger_out_adc)

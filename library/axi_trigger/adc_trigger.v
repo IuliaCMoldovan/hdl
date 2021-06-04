@@ -41,13 +41,15 @@ module adc_trigger #(
   input              clk,
   input              rst,
   
-  input  [DW-1 : 0]  probe,
-  input  [DW-1 : 0]  limit,
-  
   input              valid,
   
+  input  [DW-1 : 0]  data,
+  input  [DW-1 : 0]  limit,
+  input  [DW-1 : 0]  hysteresis,
+  
+  
   // condition for the internal analog triggering;
-  // comparison between the probe and the limit
+  // comparison between the data (probe) and the limit
   // 0 - lower than the limit 
   // 1 - higher than the limit
   // 2 - passing through high limit
@@ -56,57 +58,79 @@ module adc_trigger #(
   
   output            trigger_out
 );
+  // internal signals
+  wire signed [DW-1 : 0] data_comp;
+  wire signed [DW-1 : 0] limit_comp;
   
   reg               int_trigger_active;
-  reg               lower;
-  reg               higher; // ~lower
-  reg               passing_high;
-  reg               passing_low;
   
-  // signals from above delayed with 1 clock cycle
-  reg               lower_m;
-  reg               higher_m; // ~lower_m
-  reg               passing_high_m;
-  reg               passing_low_m;
+  reg               comp_high;
+  reg               old_comp_high;   // t + 1 version of comp_high
+  
+  reg               hyst_high_limit_pass; // valid hysteresis range on passthrough high trigger limit
+  reg               hyst_low_limit_pass; // valid hysteresis range on passthrough low trigger limit
+  
+  wire              comp_low;
+  
+  reg signed [DW-1:0] hyst_high_limit;
+  reg signed [DW-1:0] hyst_low_limit;
+  reg               passthrough_high; // trigger when rising through the limit
+  reg               passthrough_low;  // trigger when falling thorugh the limit
   // ---------------------------------------------------------------------------
 	
+  assign data_comp = data;
+  assign limit_comp = limit;
+  
+  assign comp_low = !comp_high;
+  
   // signal name changes 
-  assign trigger_out_analog = int_trigger_active;
+  assign trigger_out = int_trigger_active;
+  
+  always @(*) begin
+    case(trigger_analog_rel[1:0])
+      2'h0: int_trigger_active = comp_low;
+      2'h1: int_trigger_active = comp_high;
+      2'h2: int_trigger_active = passthrough_high;
+      2'h3: int_trigger_active = passthrough_low;
+      default: int_trigger_active = comp_low;
+    endcase
+  end
   
   // compare data with limit 
   always @ (posedge clk) begin
     if (rst == 1'b1) begin
-	  lower        <= 1'b0;
-	  higher       <= 1'b0;
-	  passing_high <= 1'b0;
-	  passing_low  <= 1'b0;
-	  
-	  lower_m        <= 1'b0;
-	  higher_m       <= 1'b0;
-	  passing_high_m <= 1'b0;
-	  passing_low_m  <= 1'b0;
-	end else begin
-	  lower        <= ((probe <= limit) ? 1'b1 : 1'b0);
-	  higher       <= ~lower;
-	  passing_high <= 1'b0;
-	  passing_low  <= 1'b0;
+      comp_high <= 1'b0;
+      old_comp_high <= 1'b0;
+      passthrough_high <= 1'b0;
+      passthrough_low <= 1'b0;
+      hyst_low_limit  <= {DW{1'b0}};
+      hyst_high_limit <= {DW{1'b0}};
+      hyst_low_limit_pass <= 1'b0;
+      hyst_high_limit_pass <= 1'b0;
+    end else begin
+      if (valid == 1'b1) begin
+        hyst_high_limit <= limit_comp + hysteresis[DW-1:0];
+        hyst_low_limit  <= limit_comp - hysteresis[DW-1:0];
+
+        comp_high <= (data_comp >= limit_comp) ? 1'b1 : 1'b0;
+
+        if (data_comp > hyst_high_limit) begin
+          hyst_low_limit_pass <= 1'b1;
+        end else begin
+          hyst_low_limit_pass <= (passthrough_low) ? 1'b0 : hyst_low_limit_pass;
+        end
+        if (data_comp < hyst_low_limit) begin
+          hyst_high_limit_pass <= 1'b1;
+        end else begin
+          hyst_high_limit_pass <= passthrough_high ? 1'b0 : hyst_high_limit_pass;
+        end
+
+        old_comp_high <= comp_high;
+        passthrough_high <= !old_comp_high & comp_high & hyst_high_limit_pass;
+        passthrough_low <= old_comp_high & !comp_high & hyst_low_limit_pass;
+      end
     end
   end
-  
-  // add comparison
-  
-  
-  // check relationship between internal and external trigger
-  always @ (*) begin
-    case (trigger_analog_rel[1 : 0])
-      2'd0: int_trigger_active = lower;
-      2'd1: int_trigger_active = higher;
-      2'd2: int_trigger_active = passing_high;
-      2'd3: int_trigger_active = passing_low;
-      default: int_trigger_active = 1'b0;
-    endcase
-  end
-  
 endmodule
 
 // ***************************************************************************

@@ -54,8 +54,12 @@ module axi_trigger #(
   input  [DW3-1 : 0]   probe3,
   	
   output               trigger_out,
-  output [NB_SELECTED-1 : 0] data_valids,	
-  output [DW0 + DW1 + DW2 + DW3-1:0] adc_data,	
+  output [NB_SELECTED-1 : 0] data_valids,		
+  
+  output  [DW0-1 : 0]  adc_data0,
+  output  [DW1-1 : 0]  adc_data1,
+  output  [DW2-1 : 0]  adc_data2,
+  output  [DW3-1 : 0]  adc_data3,
   
   // fifo 		 
   output    [31:0]     fifo_depth,
@@ -174,9 +178,11 @@ module axi_trigger #(
   assign data_valids = valid_probes;
   
   
-  // add features to util_var_fifo 
-  //     to support variable data width for inputs and outputs 
-  assign adc_data = {probe3, probe2, probe1, probe0};
+  // forward the input data to outputs
+  assign adc_data0 = probe0;
+  assign adc_data1 = probe1;
+  assign adc_data2 = probe2;
+  assign adc_data3 = probe3;
   
   // signal name changes
   assign trigger_out = trigger_out_reg;
@@ -197,7 +203,7 @@ module axi_trigger #(
   
   // check relationship between internal and external trigger
   always @ (*) begin
-    case (trigger_rel[2 : 0])
+    case (trigger_rel[2:0])
       3'd0: trigger_out_reg = trigger_int;
       3'd1: trigger_out_reg = trigger_ext;
       3'd2: trigger_out_reg = trigger_int & trigger_ext;
@@ -215,9 +221,10 @@ module axi_trigger #(
   ) trigger_probe0 (
     .clk (clk),
     .rst (rst),
+    .valid (valid_probes[0]),
     .current_data (probe0),
     .limit (limit_0),
-    .valid (valid_probes[0]),
+    .hysteresis (hysteresis_0),
     .edge_detect_enable (edge_detect_enable_0),
     .rise_edge_enable (rise_edge_enable_0),
     .fall_edge_enable (fall_edge_enable_0),
@@ -235,9 +242,10 @@ module axi_trigger #(
   ) trigger_probe1 (
     .clk (clk),
     .rst (rst),
+    .valid (valid_probes[1]),
     .current_data (probe1),
     .limit (limit_1),
-    .valid (valid_probes[1]),
+    .hysteresis (hysteresis_1),
     .edge_detect_enable (edge_detect_enable_1),
     .rise_edge_enable (rise_edge_enable_1),
     .fall_edge_enable (fall_edge_enable_1),
@@ -255,9 +263,10 @@ module axi_trigger #(
   ) trigger_probe2 (
     .clk (clk),
     .rst (rst),
+    .valid (valid_probes[2]),
     .current_data (probe2),
     .limit (limit_2),
-    .valid (valid_probes[2]),
+    .hysteresis (hysteresis_2),
     .edge_detect_enable (edge_detect_enable_2),
     .rise_edge_enable (rise_edge_enable_2),
     .fall_edge_enable (fall_edge_enable_2),
@@ -275,9 +284,10 @@ module axi_trigger #(
   ) trigger_probe3 (
     .clk (clk),
     .rst (rst),
+    .valid (valid_probes[3]),
     .current_data (probe3),
     .limit (limit_3),
-    .valid (valid_probes[3]),
+    .hysteresis (hysteresis_3),
     .edge_detect_enable (edge_detect_enable_3),
     .rise_edge_enable (rise_edge_enable_3),
     .fall_edge_enable (fall_edge_enable_3),
@@ -309,6 +319,11 @@ module axi_trigger #(
 	.limit_1 (limit_1),
 	.limit_2 (limit_2),
 	.limit_3 (limit_3),
+	
+	.hysteresis_0 (hysteresis_0),
+	.hysteresis_1 (hysteresis_1),
+	.hysteresis_2 (hysteresis_2),
+	.hysteresis_3 (hysteresis_3),
 	
     .edge_detect_enable_0 (edge_detect_enable_0),
     .rise_edge_enable_0 (rise_edge_enable_0),
