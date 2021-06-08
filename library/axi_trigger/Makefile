@@ -10,7 +10,7 @@ GENERIC_DEPS += ../common/up_axi.v
 GENERIC_DEPS += ../common/up_xfer_cntrl.v
 GENERIC_DEPS += adc_trigger.v
 GENERIC_DEPS += axi_trigger.v
-GENERIC_DEPS += dac_trigger.v
+GENERIC_DEPS += digital_trigger.v
 GENERIC_DEPS += probe_trigger.v
 GENERIC_DEPS += trigger_ip_regmap.v
 

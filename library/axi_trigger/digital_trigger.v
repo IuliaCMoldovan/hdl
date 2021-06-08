@@ -35,7 +35,7 @@
 
 `timescale 1ns/100ps
 
-module probe_trigger #(
+module digital_trigger #(
   parameter  [ 9:0]  DW = 10'd32) (
   
   input              clk,
@@ -44,9 +44,7 @@ module probe_trigger #(
   input              valid,
   
   input  [DW-1 : 0]  current_data,
-  input  [DW-1 : 0]  limit,
-  
-  input  [DW-1 : 0]  hysteresis,
+  input  [DW-1 : 0]  prev_data,
   
   // masks 
   input  [DW-1 : 0]  edge_detect_enable,
@@ -59,104 +57,92 @@ module probe_trigger #(
   // OR(0) / AND(1): the internal trigger condition
   input              trigger_int_cond,
   
-  // condition for the internal analog triggering;
-  // comparison between the probe and the limit
-  // 0 - lower than the limit 
-  // 1 - higher than the limit
-  // 2 - passing through high limit
-  // 3 - passing through low limit 
-  input    [ 1:0]    trigger_analog_rel,
-  
-  // relationship between analog and digital trigger (on all probes)
-  // 0 - continuous triggering
-  // 1 - digital triggering 
-  // 2 - analog triggering 
-  // 3 - reserved
-  // 4 - dac OR adc triggering 
-  // 5 - dac AND adc triggering 
-  // 6 - dac XOR adc triggering 
-  // 7 - option 4 negated
-  // 8 - option 5 negated
-  // 9 - option 6 negated
-  input    [ 3:0]    adc_dac_trigger_rel,
-  
   output             trigger_out
 );
-
-  wire               trigger_out_adc;
-  wire               trigger_out_dac;
+  // SIGNAL IS ALREADY DELAYED 
+  //reg    [DW-1 : 0]  prev_data = 'b0;
   
-  reg    [DW-1 : 0]  prev_data;
+  reg    [DW-1 : 0]  edge_detect;
+  reg    [DW-1 : 0]  rise_edge;
+  reg	 [DW-1 : 0]  fall_edge;
+  reg	 [DW-1 : 0]  low_level;
+  reg	 [DW-1 : 0]  high_level;
+  	  
+  reg	 [DW-1 : 0]  edge_detect_m;
+  reg	 [DW-1 : 0]  rise_edge_m;
+  reg	 [DW-1 : 0]  fall_edge_m;
+  reg	 [DW-1 : 0]  low_level_m;
+  reg	 [DW-1 : 0]  high_level_m;
   
   reg                int_trigger_active;
-  reg                trigger_out_int;
   // ---------------------------------------------------------------------------
 	
   // signal name changes 
-  assign trigger_out = trigger_out_int;
+  assign trigger_out = int_trigger_active;
    
 
+  // SIGNAL IS ALREADY DELAYED 
   // delay signals 
+  //always @ (posedge clk) begin
+  //  if (rst == 1'b1) begin
+  //    prev_data <= 'b0;
+  //  end else begin
+  //    if (valid == 1'b1) begin
+  //      prev_data <= current_data;
+  //    end
+  //  end
+  //end
+  
+  
+  // detect transition
   always @ (posedge clk) begin
     if (rst == 1'b1) begin
-      prev_data <= 'b0;
+      edge_detect <= 'b0;
+      rise_edge   <= 'b0;
+      fall_edge   <= 'b0;		
+      low_level   <= 'b0;
+      high_level  <= 'b0;
     end else begin
       if (valid == 1'b1) begin
-        prev_data <= current_data;
+        edge_detect <=  prev_data ^ current_data;
+        rise_edge	<= (prev_data ^ current_data) & current_data;
+        fall_edge	<= (prev_data ^ current_data) & ~current_data;
+        low_level	<= ~current_data;
+        high_level	<=  current_data;
+        
+        edge_detect_m <= edge_detect;
+        rise_edge_m	  <= rise_edge;
+        fall_edge_m	  <= fall_edge;
+        low_level_m	  <= low_level;
+        high_level_m  <= high_level;
       end
     end
   end
   
   
-  // check relationship between analog and digital trigger
+  // based on detected transitions, determine if internal trigger is active
   always @ (*) begin
-    case (adc_dac_trigger_rel[3:0])
-      4'd0: trigger_out_int = 1'b1;
-      4'd1: trigger_out_int = trigger_out_dac;
-      4'd2: trigger_out_int = trigger_out_adc;
-      4'd3: trigger_out_int = 1'b0; // reserved
-      4'd4: trigger_out_int = trigger_out_dac | trigger_out_adc;
-      4'd5: trigger_out_int = trigger_out_dac & trigger_out_adc;
-      4'd6: trigger_out_int = trigger_out_dac ^ trigger_out_adc;
-      4'd7: trigger_out_int = ~(trigger_out_dac | trigger_out_adc);
-      4'd8: trigger_out_int = ~(trigger_out_dac & trigger_out_adc);
-      4'd9: trigger_out_int = ~(trigger_out_dac ^ trigger_out_adc);
-      default: trigger_out_int = 1'b0; // disable
-    endcase
+    if (valid == 1'b1) begin
+      case (trigger_int_cond)
+        // OR
+      	0: int_trigger_active = |((edge_detect_m & edge_detect_enable) |
+                                  (rise_edge_m	 & rise_edge_enable) |
+                                  (fall_edge_m	 & fall_edge_enable) |
+                                  (low_level_m	 & low_level_enable) |
+                                  (high_level_m  & high_level_enable));
+        // AND
+      	1: int_trigger_active = &((edge_detect_m | ~edge_detect_enable) &
+                                  (rise_edge_m	 | ~rise_edge_enable) &
+                                  (fall_edge_m	 | ~fall_edge_enable) &
+                                  (low_level_m	 | ~low_level_enable) &
+                                  (high_level_m	 | ~high_level_enable));
+      	default: int_trigger_active = 1'b1;
+      endcase
+    end
+    else begin // if probe not valid
+      int_trigger_active = 1'b0;
+    end
   end
-  
-  // digital trigger
-  digital_trigger #(
-    .DW (DW)
-  ) digital_data_triggering (
-    .clk (clk),
-    .rst (rst),
-    .current_data (current_data),
-    .prev_data(prev_data),
-    .valid (valid),
-    .edge_detect_enable (edge_detect_enable),
-    .rise_edge_enable (rise_edge_enable),
-    .fall_edge_enable (fall_edge_enable),
-    .low_level_enable (low_level_enable),
-    .high_level_enable (high_level_enable),
-    .trigger_int_cond (trigger_int_cond),
-    .trigger_out (trigger_out_dac)
-  );
-  
-  
-  // adc trigger
-  adc_trigger #(
-    .DW (DW)
-  ) analog_data_triggering (
-    .clk (clk),
-    .rst (rst),
-    .data (current_data),
-    .limit (limit),
-    .hysteresis (hysteresis),
-    .valid (valid),
-    .trigger_analog_rel (trigger_analog_rel[1 : 0]),
-    .trigger_out (trigger_out_adc)
-  );
 endmodule
 
 // ***************************************************************************

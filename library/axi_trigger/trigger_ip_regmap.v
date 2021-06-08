@@ -77,6 +77,12 @@ module trigger_ip_regmap (
   output      [31:0]    limit_1,
   output      [31:0]    limit_2,
   output      [31:0]    limit_3,
+  
+  // hysteresis value for triggering on analog data
+  output      [31:0]    hysteresis_0,
+  output      [31:0]    hysteresis_1,
+  output      [31:0]    hysteresis_2,
+  output      [31:0]    hysteresis_3,
 		      
   output      [31:0]    edge_detect_enable_0,
   output      [31:0]    rise_edge_enable_0,
@@ -131,6 +137,11 @@ module trigger_ip_regmap (
   reg         [31:0]    up_limit_1  = 'h0;
   reg         [31:0]    up_limit_2  = 'h0;
   reg         [31:0]    up_limit_3  = 'h0;
+  
+  reg         [31:0]    up_hysteresis_0  = 'h0;
+  reg         [31:0]    up_hysteresis_1  = 'h0;
+  reg         [31:0]    up_hysteresis_2  = 'h0;
+  reg         [31:0]    up_hysteresis_3  = 'h0;
 	          
   reg         [31:0]    up_edge_detect_enable_0 = 'h0;
   reg         [31:0]    up_rise_edge_enable_0   = 'h0;
@@ -174,6 +185,7 @@ module trigger_ip_regmap (
   	  up_low_level_enable_0   <= 'h0;
   	  up_high_level_enable_0  <= 'h0;
 	  up_limit_0  <= 'h0;
+	  up_hysteresis_0  <= 'h0;	  
   	   
   	  up_edge_detect_enable_1 <= 'h0;
   	  up_rise_edge_enable_1   <= 'h0;
@@ -181,6 +193,7 @@ module trigger_ip_regmap (
   	  up_low_level_enable_1   <= 'h0;
   	  up_high_level_enable_1  <= 'h0;
 	  up_limit_1  <= 'h0;
+	  up_hysteresis_1  <= 'h0;	 
   	   
   	  up_edge_detect_enable_2 <= 'h0;
   	  up_rise_edge_enable_2   <= 'h0;
@@ -188,6 +201,7 @@ module trigger_ip_regmap (
   	  up_low_level_enable_2   <= 'h0;
   	  up_high_level_enable_2  <= 'h0;
 	  up_limit_2  <= 'h0;
+	  up_hysteresis_2  <= 'h0;	 
   	   
   	  up_edge_detect_enable_3 <= 'h0;
   	  up_rise_edge_enable_3   <= 'h0;
@@ -195,6 +209,7 @@ module trigger_ip_regmap (
   	  up_low_level_enable_3   <= 'h0;
   	  up_high_level_enable_3  <= 'h0;
 	  up_limit_3  <= 'h0;
+	  up_hysteresis_3  <= 'h0;	 
     end else begin
 		
       up_wack <= up_wreq;
@@ -234,6 +249,9 @@ module trigger_ip_regmap (
 	  if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h15)) begin
       	up_limit_0 <= up_wdata[31:0];
       end
+      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h16)) begin
+      	up_hysteresis_0 <= up_wdata[31:0];
+      end
       
       
       // for PROBE 1
@@ -254,6 +272,9 @@ module trigger_ip_regmap (
       end
 	  if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h1D)) begin
       	up_limit_1 <= up_wdata[31:0];
+      end
+      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h1E)) begin
+      	up_hysteresis_1 <= up_wdata[31:0];
       end
       
       
@@ -276,6 +297,9 @@ module trigger_ip_regmap (
 	  if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h25)) begin
       	up_limit_2 <= up_wdata[31:0];
       end
+      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h26)) begin
+      	up_hysteresis_2 <= up_wdata[31:0];
+      end
       
       
       // for PROBE 3
@@ -296,7 +320,10 @@ module trigger_ip_regmap (
       end	
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h2D)) begin
       	up_limit_3 <= up_wdata[31:0];
-      end	  
+      end	
+      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h2E)) begin
+      	up_hysteresis_3 <= up_wdata[31:0];
+      end  
     end
   end
 
@@ -321,6 +348,7 @@ module trigger_ip_regmap (
   	  	  5'h13:up_rdata <= up_low_level_enable_0;
   	  	  5'h14:up_rdata <= up_high_level_enable_0;
   	  	  5'h15:up_rdata <= up_limit_0;
+  	  	  5'h16:up_rdata <= up_hysteresis_0;
   	  	  	  	  
   	  	  5'h18:up_rdata <= up_edge_detect_enable_1;
   	  	  5'h19:up_rdata <= up_rise_edge_enable_1;
@@ -328,6 +356,7 @@ module trigger_ip_regmap (
   	  	  5'h1B:up_rdata <= up_low_level_enable_1;
   	  	  5'h1C:up_rdata <= up_high_level_enable_1;	
   	  	  5'h1D:up_rdata <= up_limit_1;	
+  	  	  5'h1E:up_rdata <= up_hysteresis_1;
   	  	  					
   	  	  5'h20:up_rdata <= up_edge_detect_enable_2;
   	  	  5'h21:up_rdata <= up_rise_edge_enable_2;
@@ -335,6 +364,7 @@ module trigger_ip_regmap (
   	  	  5'h23:up_rdata <= up_low_level_enable_2;
   	  	  5'h24:up_rdata <= up_high_level_enable_2;
   	  	  5'h25:up_rdata <= up_limit_2;
+  	  	  5'h26:up_rdata <= up_hysteresis_2;
   	  	  
   	  	  5'h28:up_rdata <= up_edge_detect_enable_3;
   	  	  5'h29:up_rdata <= up_rise_edge_enable_3;
@@ -342,6 +372,7 @@ module trigger_ip_regmap (
   	  	  5'h2B:up_rdata <= up_low_level_enable_3;
   	  	  5'h2C:up_rdata <= up_high_level_enable_3;
   	  	  5'h2D:up_rdata <= up_limit_3;
+  	  	  5'h2E:up_rdata <= up_hysteresis_3;
 		  default:up_rdata <= 0;
 					
 	    endcase
@@ -360,7 +391,7 @@ module trigger_ip_regmap (
   
   
   // clock domain crossing
-  up_xfer_cntrl #(.DATA_WIDTH(810)) i_xfer_cntrl (
+  up_xfer_cntrl #(.DATA_WIDTH(938)) i_xfer_cntrl (
   	.up_rstn (up_rstn),
   	.up_clk (up_clk),
   	.up_data_cntrl ({ up_trigger_logic,				//  4 
@@ -374,13 +405,15 @@ module trigger_ip_regmap (
 					  up_rise_edge_enable_0,		// 32 
 					  up_edge_detect_enable_0,		// 32 
 					  up_limit_0,					// 32 
+					  up_hysteresis_0,				// 32 
 					 							 
 					  up_high_level_enable_1,		// 32 
 					  up_low_level_enable_1,		// 32 
 					  up_fall_edge_enable_1,		// 32 
 					  up_rise_edge_enable_1,		// 32 
 					  up_edge_detect_enable_1,		// 32 		 
-					  up_limit_1,					// 32 		 
+					  up_limit_1,					// 32 	
+					  up_hysteresis_1,				// 32 	 
 					  
 					  up_high_level_enable_2,		// 32 
 					  up_low_level_enable_2,		// 32 
@@ -388,13 +421,15 @@ module trigger_ip_regmap (
 					  up_rise_edge_enable_2,		// 32 
 					  up_edge_detect_enable_2,		// 32 
 					  up_limit_2,					// 32 
+					  up_hysteresis_2,				// 32 
 					  
 					  up_high_level_enable_3,		// 32 
 					  up_low_level_enable_3,		// 32 
 					  up_fall_edge_enable_3,		// 32 
 					  up_rise_edge_enable_3,		// 32 
 					  up_edge_detect_enable_3, 		// 32 
-					  up_limit_3 					// 32 
+					  up_limit_3, 					// 32 
+					  up_hysteresis_3				// 32 
 	}),	
 
     .up_xfer_done (),
@@ -411,6 +446,7 @@ module trigger_ip_regmap (
 					  rise_edge_enable_0,			// 32 
 					  edge_detect_enable_0,	        // 32
 					  limit_0,	    			    // 32
+					  hysteresis_0,	    			// 32
 					 							 
 					  high_level_enable_1,			// 32
 					  low_level_enable_1,			// 32 
@@ -418,6 +454,7 @@ module trigger_ip_regmap (
 					  rise_edge_enable_1,			// 32 
 					  edge_detect_enable_1,	        // 32
 					  limit_1,	 			        // 32
+					  hysteresis_1,	    			// 32
 					 							 
 					  high_level_enable_2,			
 					  low_level_enable_2,			// 32 
@@ -425,13 +462,15 @@ module trigger_ip_regmap (
 					  rise_edge_enable_2,			// 32 
 					  edge_detect_enable_2,		    // 32
 					  limit_2,					    // 32
-					 								// 32
+					  hysteresis_2,	    			// 32
+					 								
 					  high_level_enable_3,			
 					  low_level_enable_3,			// 32 
 					  fall_edge_enable_3,			// 32 
 					  rise_edge_enable_3,			// 32 
 					  edge_detect_enable_3,         // 32
-					  limit_3			            // 32
+					  limit_3,			            // 32
+					  hysteresis_3	    			// 32
 	}));	                            				
 endmodule
 
