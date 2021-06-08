@@ -56,27 +56,27 @@ module digital_trigger #(
   // condition for internal trigger
   // OR(0) / AND(1): the internal trigger condition
   input              trigger_int_cond,
-  
+
   output             trigger_out
 );
   // SIGNAL IS ALREADY DELAYED 
   //reg    [DW-1 : 0]  prev_data = 'b0;
-  
+
   reg    [DW-1 : 0]  edge_detect;
   reg    [DW-1 : 0]  rise_edge;
-  reg	 [DW-1 : 0]  fall_edge;
-  reg	 [DW-1 : 0]  low_level;
-  reg	 [DW-1 : 0]  high_level;
-  	  
-  reg	 [DW-1 : 0]  edge_detect_m;
-  reg	 [DW-1 : 0]  rise_edge_m;
-  reg	 [DW-1 : 0]  fall_edge_m;
-  reg	 [DW-1 : 0]  low_level_m;
-  reg	 [DW-1 : 0]  high_level_m;
-  
+  reg    [DW-1 : 0]  fall_edge;
+  reg    [DW-1 : 0]  low_level;
+  reg    [DW-1 : 0]  high_level;
+
+  reg    [DW-1 : 0]  edge_detect_m;
+  reg    [DW-1 : 0]  rise_edge_m;
+  reg    [DW-1 : 0]  fall_edge_m;
+  reg    [DW-1 : 0]  low_level_m;
+  reg    [DW-1 : 0]  high_level_m;
+
   reg                int_trigger_active;
   // ---------------------------------------------------------------------------
-	
+
   // signal name changes 
   assign trigger_out = int_trigger_active;
    
@@ -99,21 +99,21 @@ module digital_trigger #(
     if (rst == 1'b1) begin
       edge_detect <= 'b0;
       rise_edge   <= 'b0;
-      fall_edge   <= 'b0;		
+      fall_edge   <= 'b0;
       low_level   <= 'b0;
       high_level  <= 'b0;
     end else begin
       if (valid == 1'b1) begin
         edge_detect <=  prev_data ^ current_data;
-        rise_edge	<= (prev_data ^ current_data) & current_data;
-        fall_edge	<= (prev_data ^ current_data) & ~current_data;
-        low_level	<= ~current_data;
-        high_level	<=  current_data;
+        rise_edge   <= (prev_data ^ current_data) & current_data;
+        fall_edge   <= (prev_data ^ current_data) & ~current_data;
+        low_level   <= ~current_data;
+        high_level <=  current_data;
         
         edge_detect_m <= edge_detect;
-        rise_edge_m	  <= rise_edge;
-        fall_edge_m	  <= fall_edge;
-        low_level_m	  <= low_level;
+        rise_edge_m   <= rise_edge;
+        fall_edge_m   <= fall_edge;
+        low_level_m   <= low_level;
         high_level_m  <= high_level;
       end
     end
@@ -125,17 +125,17 @@ module digital_trigger #(
     if (valid == 1'b1) begin
       case (trigger_int_cond)
         // OR
-      	0: int_trigger_active = |((edge_detect_m & edge_detect_enable) |
-                                  (rise_edge_m	 & rise_edge_enable) |
-                                  (fall_edge_m	 & fall_edge_enable) |
-                                  (low_level_m	 & low_level_enable) |
+        0: int_trigger_active = |((edge_detect_m & edge_detect_enable) |
+                                  (rise_edge_m   & rise_edge_enable) |
+                                  (fall_edge_m   & fall_edge_enable) |
+                                  (low_level_m   & low_level_enable) |
                                   (high_level_m  & high_level_enable));
         // AND
-      	1: int_trigger_active = &((edge_detect_m | ~edge_detect_enable) &
-                                  (rise_edge_m	 | ~rise_edge_enable) &
-                                  (fall_edge_m	 | ~fall_edge_enable) &
-                                  (low_level_m	 | ~low_level_enable) &
-                                  (high_level_m	 | ~high_level_enable));
+        1: int_trigger_active = &((edge_detect_m | ~edge_detect_enable) &
+                                  (rise_edge_m   | ~rise_edge_enable) &
+                                  (fall_edge_m   | ~fall_edge_enable) &
+                                  (low_level_m   | ~low_level_enable) &
+                                  (high_level_m  | ~high_level_enable));
       	default: int_trigger_active = 1'b1;
       endcase
     end

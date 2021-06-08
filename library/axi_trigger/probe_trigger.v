@@ -37,17 +37,17 @@
 
 module probe_trigger #(
   parameter  [ 9:0]  DW = 10'd32) (
-  
+
   input              clk,
   input              rst,
-  
+
   input              valid,
-  
+
   input  [DW-1 : 0]  current_data,
   input  [DW-1 : 0]  limit,
-  
+
   input  [DW-1 : 0]  hysteresis,
-  
+
   // masks 
   input  [DW-1 : 0]  edge_detect_enable,
   input  [DW-1 : 0]  rise_edge_enable,
@@ -58,7 +58,7 @@ module probe_trigger #(
   // condition for internal trigger
   // OR(0) / AND(1): the internal trigger condition
   input              trigger_int_cond,
-  
+
   // condition for the internal analog triggering;
   // comparison between the probe and the limit
   // 0 - lower than the limit 
@@ -66,7 +66,7 @@ module probe_trigger #(
   // 2 - passing through high limit
   // 3 - passing through low limit 
   input    [ 1:0]    trigger_analog_rel,
-  
+
   // relationship between analog and digital trigger (on all probes)
   // 0 - continuous triggering
   // 1 - digital triggering 
@@ -79,7 +79,7 @@ module probe_trigger #(
   // 8 - option 5 negated
   // 9 - option 6 negated
   input    [ 3:0]    adc_dac_trigger_rel,
-  
+
   output             trigger_out
 );
 
@@ -91,10 +91,10 @@ module probe_trigger #(
   reg                int_trigger_active;
   reg                trigger_out_int;
   // ---------------------------------------------------------------------------
-	
+
   // signal name changes 
   assign trigger_out = trigger_out_int;
-   
+
 
   // delay signals 
   always @ (posedge clk) begin

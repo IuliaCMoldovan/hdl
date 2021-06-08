@@ -37,17 +37,17 @@
 
 module adc_trigger #(
   parameter  [ 9:0]  DW = 10'd32) (
-  
+
   input              clk,
   input              rst,
-  
+
   input              valid,
-  
+
   input  [DW-1 : 0]  data,
   input  [DW-1 : 0]  limit,
   input  [DW-1 : 0]  hysteresis,
-  
-  
+
+
   // condition for the internal analog triggering;
   // comparison between the data (probe) and the limit
   // 0 - lower than the limit 
@@ -55,29 +55,29 @@ module adc_trigger #(
   // 2 - passing through high limit
   // 3 - passing through low limit 
   input   [ 1:0]    trigger_analog_rel,
-  
+
   output            trigger_out
 );
   // internal signals
   wire signed [DW-1 : 0] data_comp;
   wire signed [DW-1 : 0] limit_comp;
-  
+
   reg               int_trigger_active;
-  
+
   reg               comp_high;
   reg               old_comp_high;   // t + 1 version of comp_high
-  
+
   reg               hyst_high_limit_pass; // valid hysteresis range on passthrough high trigger limit
   reg               hyst_low_limit_pass; // valid hysteresis range on passthrough low trigger limit
-  
+
   wire              comp_low;
-  
+
   reg signed [DW-1:0] hyst_high_limit;
   reg signed [DW-1:0] hyst_low_limit;
   reg               passthrough_high; // trigger when rising through the limit
   reg               passthrough_low;  // trigger when falling thorugh the limit
   // ---------------------------------------------------------------------------
-	
+
   assign data_comp = data;
   assign limit_comp = limit;
   

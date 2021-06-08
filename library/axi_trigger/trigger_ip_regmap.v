@@ -37,7 +37,7 @@
 
 module trigger_ip_regmap (
   input                 clk,
-  
+
   // condition for internal trigger
   // bit 3: OR(0) / AND(1): the internal trigger condition, 
   // bits [2:0] - relationship between internal and external trigger
@@ -47,8 +47,7 @@ module trigger_ip_regmap (
   // 3 - internal OR external trigger
   // 4 - internal XOR external trigger
   output      [ 3:0]    trigger_logic,
-  
-  
+
   // condition for the internal analog triggering;
   // comparison between the probe and the limit
   // 0 - lower than the limit 
@@ -56,7 +55,7 @@ module trigger_ip_regmap (
   // 2 - passing through high limit
   // 3 - passing through low limit 
   output      [ 1:0]    trigger_analog_rel,
-  
+
   // relationship between analog and digital trigger (on all probes)
   // 0 - continuous triggering
   // 1 - digital triggering 
@@ -69,47 +68,47 @@ module trigger_ip_regmap (
   // 8 - option 5 negated
   // 9 - option 6 negated
   output      [ 3:0]    adc_dac_trigger_rel,
-  
+
   output      [31:0]    fifo_depth,
-  
+
   // limit for triggering on analog data
   output      [31:0]    limit_0,
   output      [31:0]    limit_1,
   output      [31:0]    limit_2,
   output      [31:0]    limit_3,
-  
+
   // hysteresis value for triggering on analog data
   output      [31:0]    hysteresis_0,
   output      [31:0]    hysteresis_1,
   output      [31:0]    hysteresis_2,
   output      [31:0]    hysteresis_3,
-		      
+
   output      [31:0]    edge_detect_enable_0,
   output      [31:0]    rise_edge_enable_0,
   output      [31:0]    fall_edge_enable_0,
   output      [31:0]    low_level_enable_0,
   output      [31:0]    high_level_enable_0,
-					    
+
   output      [31:0]    edge_detect_enable_1,
   output      [31:0]    rise_edge_enable_1,
   output      [31:0]    fall_edge_enable_1,
   output      [31:0]    low_level_enable_1,
   output      [31:0]    high_level_enable_1,
-					    
+
   output      [31:0]    edge_detect_enable_2,
   output      [31:0]    rise_edge_enable_2,
   output      [31:0]    fall_edge_enable_2,
   output      [31:0]    low_level_enable_2,
   output      [31:0]    high_level_enable_2,
-					    
+
   output      [31:0]    edge_detect_enable_3,
   output      [31:0]    rise_edge_enable_3,
   output      [31:0]    fall_edge_enable_3,
   output      [31:0]    low_level_enable_3,
   output      [31:0]    high_level_enable_3,
-  
+
   output                rst,
-  
+
   // bus interface
   input                 up_rstn,
   input                 up_clk,
@@ -122,263 +121,262 @@ module trigger_ip_regmap (
   output reg  [31:0]    up_rdata,
   output reg            up_rack
 );
-  
+
   // internal registers
   reg         [31:0]    up_version = 32'h00020100;
   reg         [31:0]    up_scratch = 'h0;
-					    
+
   reg         [ 3:0]    up_trigger_logic = 'h0;
   reg         [ 1:0]    up_trigger_analog_rel = 'h0;
   reg         [ 3:0]    up_adc_dac_trigger_rel = 'h0;
-	          
+
   reg         [31:0]    up_fifo_depth = 'h0;
-	          
+
   reg         [31:0]    up_limit_0  = 'h0;
   reg         [31:0]    up_limit_1  = 'h0;
   reg         [31:0]    up_limit_2  = 'h0;
   reg         [31:0]    up_limit_3  = 'h0;
-  
+
   reg         [31:0]    up_hysteresis_0  = 'h0;
   reg         [31:0]    up_hysteresis_1  = 'h0;
   reg         [31:0]    up_hysteresis_2  = 'h0;
   reg         [31:0]    up_hysteresis_3  = 'h0;
-	          
+
   reg         [31:0]    up_edge_detect_enable_0 = 'h0;
   reg         [31:0]    up_rise_edge_enable_0   = 'h0;
   reg         [31:0]    up_fall_edge_enable_0   = 'h0;
   reg         [31:0]    up_low_level_enable_0   = 'h0;
   reg         [31:0]    up_high_level_enable_0  = 'h0;
-	  	       		    				  
+
   reg         [31:0]    up_edge_detect_enable_1 = 'h0;
   reg         [31:0]    up_rise_edge_enable_1   = 'h0;
   reg         [31:0]    up_fall_edge_enable_1   = 'h0;
   reg         [31:0]    up_low_level_enable_1   = 'h0;
   reg         [31:0]    up_high_level_enable_1  = 'h0;
-	  	       		    				  
+
   reg         [31:0]    up_edge_detect_enable_2 = 'h0;
   reg         [31:0]    up_rise_edge_enable_2   = 'h0;
   reg         [31:0]    up_fall_edge_enable_2   = 'h0;
   reg         [31:0]    up_low_level_enable_2   = 'h0;
   reg         [31:0]    up_high_level_enable_2  = 'h0;
-	  	       		    				  
+
   reg         [31:0]    up_edge_detect_enable_3 = 'h0;
   reg         [31:0]    up_rise_edge_enable_3   = 'h0;
   reg         [31:0]    up_fall_edge_enable_3   = 'h0;
   reg         [31:0]    up_low_level_enable_3   = 'h0;
   reg         [31:0]    up_high_level_enable_3  = 'h0;
-  
-  
+
+
   always @(negedge up_rstn or posedge up_clk) begin
-  	if (up_rstn == 0) begin	
-  	  up_wack <= 'h0;
-  	  up_scratch <= 'h0;
-	  
-  	  up_trigger_logic <= 'h0;
-	  up_trigger_analog_rel <= 'h0;
-	  up_adc_dac_trigger_rel <= 'h0;
-  	  
-  	  up_fifo_depth <= 'd0;
-  	  
-  	  up_edge_detect_enable_0 <= 'h0;
-  	  up_rise_edge_enable_0   <= 'h0;
-  	  up_fall_edge_enable_0   <= 'h0;
-  	  up_low_level_enable_0   <= 'h0;
-  	  up_high_level_enable_0  <= 'h0;
-	  up_limit_0  <= 'h0;
-	  up_hysteresis_0  <= 'h0;	  
-  	   
-  	  up_edge_detect_enable_1 <= 'h0;
-  	  up_rise_edge_enable_1   <= 'h0;
-  	  up_fall_edge_enable_1   <= 'h0;
-  	  up_low_level_enable_1   <= 'h0;
-  	  up_high_level_enable_1  <= 'h0;
-	  up_limit_1  <= 'h0;
-	  up_hysteresis_1  <= 'h0;	 
-  	   
-  	  up_edge_detect_enable_2 <= 'h0;
-  	  up_rise_edge_enable_2   <= 'h0;
-  	  up_fall_edge_enable_2   <= 'h0;
-  	  up_low_level_enable_2   <= 'h0;
-  	  up_high_level_enable_2  <= 'h0;
-	  up_limit_2  <= 'h0;
-	  up_hysteresis_2  <= 'h0;	 
-  	   
-  	  up_edge_detect_enable_3 <= 'h0;
-  	  up_rise_edge_enable_3   <= 'h0;
-  	  up_fall_edge_enable_3   <= 'h0;
-  	  up_low_level_enable_3   <= 'h0;
-  	  up_high_level_enable_3  <= 'h0;
-	  up_limit_3  <= 'h0;
-	  up_hysteresis_3  <= 'h0;	 
+      if (up_rstn == 0) begin    
+        up_wack <= 'h0;
+        up_scratch <= 'h0;
+      
+        up_trigger_logic <= 'h0;
+        up_trigger_analog_rel <= 'h0;
+        up_adc_dac_trigger_rel <= 'h0;
+        
+        up_fifo_depth <= 'd0;
+        
+        up_edge_detect_enable_0 <= 'h0;
+        up_rise_edge_enable_0   <= 'h0;
+        up_fall_edge_enable_0   <= 'h0;
+        up_low_level_enable_0   <= 'h0;
+        up_high_level_enable_0  <= 'h0;
+        up_limit_0  <= 'h0;
+        up_hysteresis_0  <= 'h0;      
+         
+        up_edge_detect_enable_1 <= 'h0;
+        up_rise_edge_enable_1   <= 'h0;
+        up_fall_edge_enable_1   <= 'h0;
+        up_low_level_enable_1   <= 'h0;
+        up_high_level_enable_1  <= 'h0;
+        up_limit_1  <= 'h0;
+        up_hysteresis_1  <= 'h0;     
+         
+        up_edge_detect_enable_2 <= 'h0;
+        up_rise_edge_enable_2   <= 'h0;
+        up_fall_edge_enable_2   <= 'h0;
+        up_low_level_enable_2   <= 'h0;
+        up_high_level_enable_2  <= 'h0;
+        up_limit_2  <= 'h0;
+        up_hysteresis_2  <= 'h0;     
+         
+        up_edge_detect_enable_3 <= 'h0;
+        up_rise_edge_enable_3   <= 'h0;
+        up_fall_edge_enable_3   <= 'h0;
+        up_low_level_enable_3   <= 'h0;
+        up_high_level_enable_3  <= 'h0;
+        up_limit_3  <= 'h0;
+        up_hysteresis_3  <= 'h0;     
     end else begin
-		
+        
       up_wack <= up_wreq;
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h1)) begin
-      	up_scratch <= up_wdata;
+          up_scratch <= up_wdata;
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h2)) begin
-      	up_trigger_logic <= up_wdata[3:0];
+          up_trigger_logic <= up_wdata[3:0];
       end
-	  if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h3)) begin
-      	up_trigger_analog_rel <= up_wdata;
+      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h3)) begin
+          up_trigger_analog_rel <= up_wdata;
       end
-	  if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h4)) begin
-      	up_adc_dac_trigger_rel <= up_wdata;
+      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h4)) begin
+          up_adc_dac_trigger_rel <= up_wdata;
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h5)) begin
-      	up_fifo_depth <= up_wdata;
+          up_fifo_depth <= up_wdata;
       end
       
-	  
+      
       // for PROBE 0
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h10)) begin
-      	up_edge_detect_enable_0 <= up_wdata[31:0];
+          up_edge_detect_enable_0 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h11)) begin
-      	up_rise_edge_enable_0 <= up_wdata[31:0];
+          up_rise_edge_enable_0 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h12)) begin
-      	up_fall_edge_enable_0 <= up_wdata[31:0];
+          up_fall_edge_enable_0 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h13)) begin
-      	up_low_level_enable_0 <= up_wdata[31:0];
+          up_low_level_enable_0 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h14)) begin
-      	up_high_level_enable_0 <= up_wdata[31:0];
+          up_high_level_enable_0 <= up_wdata[31:0];
       end
-	  if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h15)) begin
-      	up_limit_0 <= up_wdata[31:0];
+      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h15)) begin
+          up_limit_0 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h16)) begin
-      	up_hysteresis_0 <= up_wdata[31:0];
+          up_hysteresis_0 <= up_wdata[31:0];
       end
       
       
       // for PROBE 1
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h18)) begin
-      	up_edge_detect_enable_1 <= up_wdata[31:0];
+          up_edge_detect_enable_1 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h19)) begin
-      	up_rise_edge_enable_1 <= up_wdata[31:0];
+          up_rise_edge_enable_1 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h1A)) begin
-      	up_fall_edge_enable_1 <= up_wdata[31:0];
+          up_fall_edge_enable_1 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h1B)) begin
-      	up_low_level_enable_1 <= up_wdata[31:0];
+          up_low_level_enable_1 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h1C)) begin
-      	up_high_level_enable_1 <= up_wdata[31:0];
+          up_high_level_enable_1 <= up_wdata[31:0];
       end
-	  if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h1D)) begin
-      	up_limit_1 <= up_wdata[31:0];
+      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h1D)) begin
+          up_limit_1 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h1E)) begin
-      	up_hysteresis_1 <= up_wdata[31:0];
+          up_hysteresis_1 <= up_wdata[31:0];
       end
       
       
       // for PROBE 2
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h20)) begin
-      	up_edge_detect_enable_2 <= up_wdata[31:0];
+          up_edge_detect_enable_2 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h21)) begin
-      	up_rise_edge_enable_2 <= up_wdata[31:0];
+          up_rise_edge_enable_2 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h22)) begin
-      	up_fall_edge_enable_2 <= up_wdata[31:0];
+          up_fall_edge_enable_2 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h23)) begin
-      	up_low_level_enable_2 <= up_wdata[31:0];
+          up_low_level_enable_2 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h24)) begin
-      	up_high_level_enable_2 <= up_wdata[31:0];
+          up_high_level_enable_2 <= up_wdata[31:0];
       end
-	  if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h25)) begin
-      	up_limit_2 <= up_wdata[31:0];
+      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h25)) begin
+          up_limit_2 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h26)) begin
-      	up_hysteresis_2 <= up_wdata[31:0];
+          up_hysteresis_2 <= up_wdata[31:0];
       end
       
       
       // for PROBE 3
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h28)) begin
-      	up_edge_detect_enable_3 <= up_wdata[31:0];
+          up_edge_detect_enable_3 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h29)) begin
-      	up_rise_edge_enable_3 <= up_wdata[31:0];
+          up_rise_edge_enable_3 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h2A)) begin
-      	up_fall_edge_enable_3 <= up_wdata[31:0];
+          up_fall_edge_enable_3 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h2B)) begin
-      	up_low_level_enable_3 <= up_wdata[31:0];
+          up_low_level_enable_3 <= up_wdata[31:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h2C)) begin
-      	up_high_level_enable_3 <= up_wdata[31:0];
-      end	
+          up_high_level_enable_3 <= up_wdata[31:0];
+      end    
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h2D)) begin
-      	up_limit_3 <= up_wdata[31:0];
-      end	
+          up_limit_3 <= up_wdata[31:0];
+      end    
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h2E)) begin
-      	up_hysteresis_3 <= up_wdata[31:0];
-      end  
+          up_hysteresis_3 <= up_wdata[31:0];
+      end
     end
   end
 
 
   // processor read interface
   always @(negedge up_rstn or posedge up_clk) begin
-  	if (up_rstn == 0) begin
-  		up_rack <= 'h0;
-  		up_rdata <= 'h0;
-  	end else begin
-  	  up_rack <= up_rreq;
-  	  if (up_rreq == 1'b1) begin
-  	  	case (up_raddr[4:0])
-  	  	  5'h0:up_rdata <= up_version;
-  	  	  5'h1:up_rdata <= up_scratch;
-  	  	  5'h2:up_rdata <= {25'h0,up_trigger_logic};
-  	  	  5'h3:up_rdata <= up_fifo_depth;
-  	  	  
-  	  	  5'h10:up_rdata <= up_edge_detect_enable_0;
-  	  	  5'h11:up_rdata <= up_rise_edge_enable_0;
-  	  	  5'h12:up_rdata <= up_fall_edge_enable_0;
-  	  	  5'h13:up_rdata <= up_low_level_enable_0;
-  	  	  5'h14:up_rdata <= up_high_level_enable_0;
-  	  	  5'h15:up_rdata <= up_limit_0;
-  	  	  5'h16:up_rdata <= up_hysteresis_0;
-  	  	  	  	  
-  	  	  5'h18:up_rdata <= up_edge_detect_enable_1;
-  	  	  5'h19:up_rdata <= up_rise_edge_enable_1;
-  	  	  5'h1A:up_rdata <= up_fall_edge_enable_1;
-  	  	  5'h1B:up_rdata <= up_low_level_enable_1;
-  	  	  5'h1C:up_rdata <= up_high_level_enable_1;	
-  	  	  5'h1D:up_rdata <= up_limit_1;	
-  	  	  5'h1E:up_rdata <= up_hysteresis_1;
-  	  	  					
-  	  	  5'h20:up_rdata <= up_edge_detect_enable_2;
-  	  	  5'h21:up_rdata <= up_rise_edge_enable_2;
-  	  	  5'h22:up_rdata <= up_fall_edge_enable_2;
-  	  	  5'h23:up_rdata <= up_low_level_enable_2;
-  	  	  5'h24:up_rdata <= up_high_level_enable_2;
-  	  	  5'h25:up_rdata <= up_limit_2;
-  	  	  5'h26:up_rdata <= up_hysteresis_2;
-  	  	  
-  	  	  5'h28:up_rdata <= up_edge_detect_enable_3;
-  	  	  5'h29:up_rdata <= up_rise_edge_enable_3;
-  	  	  5'h2A:up_rdata <= up_fall_edge_enable_3;
-  	  	  5'h2B:up_rdata <= up_low_level_enable_3;
-  	  	  5'h2C:up_rdata <= up_high_level_enable_3;
-  	  	  5'h2D:up_rdata <= up_limit_3;
-  	  	  5'h2E:up_rdata <= up_hysteresis_3;
-		  default:up_rdata <= 0;
-					
-	    endcase
-	  end else begin
-	    up_rdata <= 32'h0;
-	  end
+      if (up_rstn == 0) begin
+          up_rack <= 'h0;
+          up_rdata <= 'h0;
+      end else begin
+        up_rack <= up_rreq;
+        if (up_rreq == 1'b1) begin
+            case (up_raddr[4:0])
+              5'h0:up_rdata <= up_version;
+              5'h1:up_rdata <= up_scratch;
+              5'h2:up_rdata <= {25'h0,up_trigger_logic};
+              5'h3:up_rdata <= up_fifo_depth;
+              
+              5'h10:up_rdata <= up_edge_detect_enable_0;
+              5'h11:up_rdata <= up_rise_edge_enable_0;
+              5'h12:up_rdata <= up_fall_edge_enable_0;
+              5'h13:up_rdata <= up_low_level_enable_0;
+              5'h14:up_rdata <= up_high_level_enable_0;
+              5'h15:up_rdata <= up_limit_0;
+              5'h16:up_rdata <= up_hysteresis_0;
+              
+              5'h18:up_rdata <= up_edge_detect_enable_1;
+              5'h19:up_rdata <= up_rise_edge_enable_1;
+              5'h1A:up_rdata <= up_fall_edge_enable_1;
+              5'h1B:up_rdata <= up_low_level_enable_1;
+              5'h1C:up_rdata <= up_high_level_enable_1;  
+              5'h1D:up_rdata <= up_limit_1;  
+              5'h1E:up_rdata <= up_hysteresis_1;
+              
+              5'h20:up_rdata <= up_edge_detect_enable_2;
+              5'h21:up_rdata <= up_rise_edge_enable_2;
+              5'h22:up_rdata <= up_fall_edge_enable_2;
+              5'h23:up_rdata <= up_low_level_enable_2;
+              5'h24:up_rdata <= up_high_level_enable_2;
+              5'h25:up_rdata <= up_limit_2;
+              5'h26:up_rdata <= up_hysteresis_2;
+              
+              5'h28:up_rdata <= up_edge_detect_enable_3;
+              5'h29:up_rdata <= up_rise_edge_enable_3;
+              5'h2A:up_rdata <= up_fall_edge_enable_3;
+              5'h2B:up_rdata <= up_low_level_enable_3;
+              5'h2C:up_rdata <= up_high_level_enable_3;
+              5'h2D:up_rdata <= up_limit_3;
+              5'h2E:up_rdata <= up_hysteresis_3;
+          default:up_rdata <= 0;
+        endcase
+      end else begin
+        up_rdata <= 32'h0;
+      end
     end
   end
 
@@ -392,86 +390,86 @@ module trigger_ip_regmap (
   
   // clock domain crossing
   up_xfer_cntrl #(.DATA_WIDTH(938)) i_xfer_cntrl (
-  	.up_rstn (up_rstn),
-  	.up_clk (up_clk),
-  	.up_data_cntrl ({ up_trigger_logic,				//  4 
-					  up_trigger_analog_rel,		//  2
-					  up_adc_dac_trigger_rel,		//  4
-					  up_fifo_depth,				// 32
-					  
-					  up_high_level_enable_0,		// 32 
-					  up_low_level_enable_0,		// 32 
-					  up_fall_edge_enable_0,		// 32 
-					  up_rise_edge_enable_0,		// 32 
-					  up_edge_detect_enable_0,		// 32 
-					  up_limit_0,					// 32 
-					  up_hysteresis_0,				// 32 
-					 							 
-					  up_high_level_enable_1,		// 32 
-					  up_low_level_enable_1,		// 32 
-					  up_fall_edge_enable_1,		// 32 
-					  up_rise_edge_enable_1,		// 32 
-					  up_edge_detect_enable_1,		// 32 		 
-					  up_limit_1,					// 32 	
-					  up_hysteresis_1,				// 32 	 
-					  
-					  up_high_level_enable_2,		// 32 
-					  up_low_level_enable_2,		// 32 
-					  up_fall_edge_enable_2,		// 32 
-					  up_rise_edge_enable_2,		// 32 
-					  up_edge_detect_enable_2,		// 32 
-					  up_limit_2,					// 32 
-					  up_hysteresis_2,				// 32 
-					  
-					  up_high_level_enable_3,		// 32 
-					  up_low_level_enable_3,		// 32 
-					  up_fall_edge_enable_3,		// 32 
-					  up_rise_edge_enable_3,		// 32 
-					  up_edge_detect_enable_3, 		// 32 
-					  up_limit_3, 					// 32 
-					  up_hysteresis_3				// 32 
-	}),	
+      .up_rstn (up_rstn),
+      .up_clk (up_clk),
+      .up_data_cntrl ({ up_trigger_logic,             //  4
+                        up_trigger_analog_rel,        //  2
+                        up_adc_dac_trigger_rel,       //  4
+                        up_fifo_depth,                // 32
+                        
+                        up_high_level_enable_0,       // 32
+                        up_low_level_enable_0,        // 32
+                        up_fall_edge_enable_0,        // 32
+                        up_rise_edge_enable_0,        // 32
+                        up_edge_detect_enable_0,      // 32
+                        up_limit_0,                   // 32
+                        up_hysteresis_0,              // 32
+                        
+                        up_high_level_enable_1,       // 32
+                        up_low_level_enable_1,        // 32
+                        up_fall_edge_enable_1,        // 32
+                        up_rise_edge_enable_1,        // 32
+                        up_edge_detect_enable_1,      // 32
+                        up_limit_1,                   // 32
+                        up_hysteresis_1,              // 32
+                        
+                        up_high_level_enable_2,       // 32
+                        up_low_level_enable_2,        // 32
+                        up_fall_edge_enable_2,        // 32
+                        up_rise_edge_enable_2,        // 32
+                        up_edge_detect_enable_2,      // 32
+                        up_limit_2,                   // 32
+                        up_hysteresis_2,              // 32
+                        
+                        up_high_level_enable_3,       // 32
+                        up_low_level_enable_3,        // 32
+                        up_fall_edge_enable_3,        // 32
+                        up_rise_edge_enable_3,        // 32
+                        up_edge_detect_enable_3,      // 32
+                        up_limit_3,                   // 32
+                        up_hysteresis_3               // 32
+    }),
 
-    .up_xfer_done (),
-    .d_rst (1'b0),
-    .d_clk (up_clk),
-    .d_data_cntrl ({  trigger_logic,				//  4 
-					  trigger_analog_rel,		 	//  2
-					  adc_dac_trigger_rel,			//  4
-					  fifo_depth,					// 32
-					  
-					  high_level_enable_0,			// 32
-					  low_level_enable_0,			// 32 
-					  fall_edge_enable_0,			// 32 
-					  rise_edge_enable_0,			// 32 
-					  edge_detect_enable_0,	        // 32
-					  limit_0,	    			    // 32
-					  hysteresis_0,	    			// 32
-					 							 
-					  high_level_enable_1,			// 32
-					  low_level_enable_1,			// 32 
-					  fall_edge_enable_1,			// 32 
-					  rise_edge_enable_1,			// 32 
-					  edge_detect_enable_1,	        // 32
-					  limit_1,	 			        // 32
-					  hysteresis_1,	    			// 32
-					 							 
-					  high_level_enable_2,			
-					  low_level_enable_2,			// 32 
-					  fall_edge_enable_2,			// 32 
-					  rise_edge_enable_2,			// 32 
-					  edge_detect_enable_2,		    // 32
-					  limit_2,					    // 32
-					  hysteresis_2,	    			// 32
-					 								
-					  high_level_enable_3,			
-					  low_level_enable_3,			// 32 
-					  fall_edge_enable_3,			// 32 
-					  rise_edge_enable_3,			// 32 
-					  edge_detect_enable_3,         // 32
-					  limit_3,			            // 32
-					  hysteresis_3	    			// 32
-	}));	                            				
+        .up_xfer_done (),
+        .d_rst (1'b0),
+       .d_clk (up_clk),
+        .d_data_cntrl ({  trigger_logic,              //  4
+                          trigger_analog_rel,         // 32
+                          adc_dac_trigger_rel,        //  4
+                          fifo_depth,                 // 32
+                          
+                          high_level_enable_0,        // 32
+                          low_level_enable_0,         // 32
+                          fall_edge_enable_0,         // 32
+                          rise_edge_enable_0,         // 32
+                          edge_detect_enable_0,       // 32
+                          limit_0,                    // 32
+                          hysteresis_0,               // 32
+                          
+                          high_level_enable_1,        // 32
+                          low_level_enable_1,         // 32
+                          fall_edge_enable_1,         // 32
+                          rise_edge_enable_1,         // 32
+                          edge_detect_enable_1,       // 32
+                          limit_1,                    // 32
+                          hysteresis_1,               // 32
+                          
+                          high_level_enable_2,        // 32
+                          low_level_enable_2,         // 32
+                          fall_edge_enable_2,         // 32
+                          rise_edge_enable_2,         // 32
+                          edge_detect_enable_2,       // 32
+                          limit_2,                    // 32
+                          hysteresis_2,               // 32
+                          
+                          high_level_enable_3,        // 32
+                          low_level_enable_3,         // 32
+                          fall_edge_enable_3,         // 32
+                          rise_edge_enable_3,         // 32
+                          edge_detect_enable_3,       // 32
+                          limit_3,                    // 32
+                          hysteresis_3                // 32
+    }));
 endmodule
 
 // ***************************************************************************
