@@ -36,7 +36,7 @@
 `timescale 1ns/100ps
 
 module trigger_ip_regmap (
-  input						clk,
+  input                 clk,
   
   // condition for internal trigger
   // bit 3: OR(0) / AND(1): the internal trigger condition, 
@@ -46,7 +46,7 @@ module trigger_ip_regmap (
   // 2 - internal AND external trigger
   // 3 - internal OR external trigger
   // 4 - internal XOR external trigger
-  output		[ 3:0]		trigger_logic,
+  output      [ 3:0]    trigger_logic,
   
   
   // condition for the internal analog triggering;
@@ -55,7 +55,7 @@ module trigger_ip_regmap (
   // 1 - higher than the limit
   // 2 - passing through high limit
   // 3 - passing through low limit 
-  output  		[ 1:0]      trigger_analog_rel,
+  output      [ 1:0]    trigger_analog_rel,
   
   // relationship between analog and digital trigger (on all probes)
   // 0 - continuous triggering
@@ -68,93 +68,93 @@ module trigger_ip_regmap (
   // 7 - option 4 negated
   // 8 - option 5 negated
   // 9 - option 6 negated
-  output  		[ 3:0]      adc_dac_trigger_rel,
+  output      [ 3:0]    adc_dac_trigger_rel,
   
-  output		[31:0]  	fifo_depth,
+  output      [31:0]    fifo_depth,
   
   // limit for triggering on analog data
-  output  		[31:0]      limit_0,
-  output  		[31:0]      limit_1,
-  output  		[31:0]      limit_2,
-  output  		[31:0]      limit_3,
-	
-  output		[31:0]		edge_detect_enable_0,
-  output		[31:0]		rise_edge_enable_0,
-  output		[31:0]		fall_edge_enable_0,
-  output		[31:0]		low_level_enable_0,
-  output		[31:0]		high_level_enable_0,
-				
-  output		[31:0]		edge_detect_enable_1,
-  output		[31:0]		rise_edge_enable_1,
-  output		[31:0]		fall_edge_enable_1,
-  output		[31:0]		low_level_enable_1,
-  output		[31:0]		high_level_enable_1,
-				
-  output		[31:0]		edge_detect_enable_2,
-  output		[31:0]		rise_edge_enable_2,
-  output		[31:0]		fall_edge_enable_2,
-  output		[31:0]		low_level_enable_2,
-  output		[31:0]		high_level_enable_2,
-				
-  output		[31:0]		edge_detect_enable_3,
-  output		[31:0]		rise_edge_enable_3,
-  output		[31:0]		fall_edge_enable_3,
-  output		[31:0]		low_level_enable_3,
-  output		[31:0]		high_level_enable_3,
+  output      [31:0]    limit_0,
+  output      [31:0]    limit_1,
+  output      [31:0]    limit_2,
+  output      [31:0]    limit_3,
+		      
+  output      [31:0]    edge_detect_enable_0,
+  output      [31:0]    rise_edge_enable_0,
+  output      [31:0]    fall_edge_enable_0,
+  output      [31:0]    low_level_enable_0,
+  output      [31:0]    high_level_enable_0,
+					    
+  output      [31:0]    edge_detect_enable_1,
+  output      [31:0]    rise_edge_enable_1,
+  output      [31:0]    fall_edge_enable_1,
+  output      [31:0]    low_level_enable_1,
+  output      [31:0]    high_level_enable_1,
+					    
+  output      [31:0]    edge_detect_enable_2,
+  output      [31:0]    rise_edge_enable_2,
+  output      [31:0]    fall_edge_enable_2,
+  output      [31:0]    low_level_enable_2,
+  output      [31:0]    high_level_enable_2,
+					    
+  output      [31:0]    edge_detect_enable_3,
+  output      [31:0]    rise_edge_enable_3,
+  output      [31:0]    fall_edge_enable_3,
+  output      [31:0]    low_level_enable_3,
+  output      [31:0]    high_level_enable_3,
   
-  output					rst,
+  output                rst,
   
   // bus interface
-  input						up_rstn,
-  input						up_clk,
-  input						up_wreq,
-  input			[ 4:0]		up_waddr,
-  input			[31:0]		up_wdata,
-  output reg				up_wack,
-  input						up_rreq,
-  input			[ 4:0]		up_raddr,
-  output reg	[31:0]		up_rdata,
-  output reg				up_rack
+  input                 up_rstn,
+  input                 up_clk,
+  input                 up_wreq,
+  input       [ 4:0]    up_waddr,
+  input       [31:0]    up_wdata,
+  output reg            up_wack,
+  input                 up_rreq,
+  input       [ 4:0]    up_raddr,
+  output reg  [31:0]    up_rdata,
+  output reg            up_rack
 );
   
   // internal registers
-  reg			[31:0]		up_version = 32'h00020100;
-  reg			[31:0]		up_scratch = 'h0;
-  
-  reg			[ 3:0]		up_trigger_logic = 'h0;
-  reg			[ 1:0]		up_trigger_analog_rel = 'h0;
-  reg			[ 3:0]		up_adc_dac_trigger_rel = 'h0;
-  
-  reg   		[31:0]  	up_fifo_depth = 'h0;
-  
-  reg  		    [31:0]      up_limit_0  = 'h0;
-  reg  		    [31:0]      up_limit_1  = 'h0;
-  reg  		    [31:0]      up_limit_2  = 'h0;
-  reg  		    [31:0]      up_limit_3  = 'h0;
-  
-  reg			[31:0]		up_edge_detect_enable_0 = 'h0;
-  reg			[31:0]		up_rise_edge_enable_0   = 'h0;
-  reg			[31:0]		up_fall_edge_enable_0   = 'h0;
-  reg			[31:0]		up_low_level_enable_0   = 'h0;
-  reg			[31:0]		up_high_level_enable_0  = 'h0;
-													  
-  reg			[31:0]		up_edge_detect_enable_1 = 'h0;
-  reg			[31:0]		up_rise_edge_enable_1   = 'h0;
-  reg			[31:0]		up_fall_edge_enable_1   = 'h0;
-  reg			[31:0]		up_low_level_enable_1   = 'h0;
-  reg			[31:0]		up_high_level_enable_1  = 'h0;
-													  
-  reg			[31:0]		up_edge_detect_enable_2 = 'h0;
-  reg			[31:0]		up_rise_edge_enable_2   = 'h0;
-  reg			[31:0]		up_fall_edge_enable_2   = 'h0;
-  reg			[31:0]		up_low_level_enable_2   = 'h0;
-  reg			[31:0]		up_high_level_enable_2  = 'h0;
-													  
-  reg			[31:0]		up_edge_detect_enable_3 = 'h0;
-  reg			[31:0]		up_rise_edge_enable_3   = 'h0;
-  reg			[31:0]		up_fall_edge_enable_3   = 'h0;
-  reg			[31:0]		up_low_level_enable_3   = 'h0;
-  reg			[31:0]		up_high_level_enable_3  = 'h0;
+  reg         [31:0]    up_version = 32'h00020100;
+  reg         [31:0]    up_scratch = 'h0;
+					    
+  reg         [ 3:0]    up_trigger_logic = 'h0;
+  reg         [ 1:0]    up_trigger_analog_rel = 'h0;
+  reg         [ 3:0]    up_adc_dac_trigger_rel = 'h0;
+	          
+  reg         [31:0]    up_fifo_depth = 'h0;
+	          
+  reg         [31:0]    up_limit_0  = 'h0;
+  reg         [31:0]    up_limit_1  = 'h0;
+  reg         [31:0]    up_limit_2  = 'h0;
+  reg         [31:0]    up_limit_3  = 'h0;
+	          
+  reg         [31:0]    up_edge_detect_enable_0 = 'h0;
+  reg         [31:0]    up_rise_edge_enable_0   = 'h0;
+  reg         [31:0]    up_fall_edge_enable_0   = 'h0;
+  reg         [31:0]    up_low_level_enable_0   = 'h0;
+  reg         [31:0]    up_high_level_enable_0  = 'h0;
+	  	       		    				  
+  reg         [31:0]    up_edge_detect_enable_1 = 'h0;
+  reg         [31:0]    up_rise_edge_enable_1   = 'h0;
+  reg         [31:0]    up_fall_edge_enable_1   = 'h0;
+  reg         [31:0]    up_low_level_enable_1   = 'h0;
+  reg         [31:0]    up_high_level_enable_1  = 'h0;
+	  	       		    				  
+  reg         [31:0]    up_edge_detect_enable_2 = 'h0;
+  reg         [31:0]    up_rise_edge_enable_2   = 'h0;
+  reg         [31:0]    up_fall_edge_enable_2   = 'h0;
+  reg         [31:0]    up_low_level_enable_2   = 'h0;
+  reg         [31:0]    up_high_level_enable_2  = 'h0;
+	  	       		    				  
+  reg         [31:0]    up_edge_detect_enable_3 = 'h0;
+  reg         [31:0]    up_rise_edge_enable_3   = 'h0;
+  reg         [31:0]    up_fall_edge_enable_3   = 'h0;
+  reg         [31:0]    up_low_level_enable_3   = 'h0;
+  reg         [31:0]    up_high_level_enable_3  = 'h0;
   
   
   always @(negedge up_rstn or posedge up_clk) begin
@@ -168,34 +168,33 @@ module trigger_ip_regmap (
   	  
   	  up_fifo_depth <= 'd0;
   	  
-	  up_limit_0  <= 'h0;
-	  up_limit_1  <= 'h0;
-	  up_limit_2  <= 'h0;
-	  up_limit_3  <= 'h0;
-	  	  
   	  up_edge_detect_enable_0 <= 'h0;
   	  up_rise_edge_enable_0   <= 'h0;
   	  up_fall_edge_enable_0   <= 'h0;
   	  up_low_level_enable_0   <= 'h0;
   	  up_high_level_enable_0  <= 'h0;
+	  up_limit_0  <= 'h0;
   	   
   	  up_edge_detect_enable_1 <= 'h0;
   	  up_rise_edge_enable_1   <= 'h0;
   	  up_fall_edge_enable_1   <= 'h0;
   	  up_low_level_enable_1   <= 'h0;
   	  up_high_level_enable_1  <= 'h0;
+	  up_limit_1  <= 'h0;
   	   
   	  up_edge_detect_enable_2 <= 'h0;
   	  up_rise_edge_enable_2   <= 'h0;
   	  up_fall_edge_enable_2   <= 'h0;
   	  up_low_level_enable_2   <= 'h0;
   	  up_high_level_enable_2  <= 'h0;
+	  up_limit_2  <= 'h0;
   	   
   	  up_edge_detect_enable_3 <= 'h0;
   	  up_rise_edge_enable_3   <= 'h0;
   	  up_fall_edge_enable_3   <= 'h0;
   	  up_low_level_enable_3   <= 'h0;
   	  up_high_level_enable_3  <= 'h0;
+	  up_limit_3  <= 'h0;
     end else begin
 		
       up_wack <= up_wreq;
@@ -215,6 +214,7 @@ module trigger_ip_regmap (
       	up_fifo_depth <= up_wdata;
       end
       
+	  
       // for PROBE 0
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h10)) begin
       	up_edge_detect_enable_0 <= up_wdata[31:0];
@@ -355,7 +355,8 @@ module trigger_ip_regmap (
       .rst_async(~up_rstn), 
       .clk(clk), 
       .rstn(), 
-      .rst(rst));
+      .rst(rst)
+  );
   
   
   // clock domain crossing
