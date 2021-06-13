@@ -46,7 +46,7 @@ module trigger_ip_regmap (
   // 2 - internal AND external trigger
   // 3 - internal OR external trigger
   // 4 - internal XOR external trigger
-  output      [ 3:0]    trigger_logic,
+  output      [ 3:0]    triggers_rel,
 
   // condition for the internal analog triggering;
   // comparison between the probe and the limit
@@ -126,21 +126,21 @@ module trigger_ip_regmap (
   reg         [31:0]    up_version = 32'h00020100;
   reg         [31:0]    up_scratch = 'h0;
 
-  reg         [ 3:0]    up_trigger_logic = 'h0;
+  reg         [ 3:0]    up_triggers_rel = 'h0;
   reg         [ 1:0]    up_trigger_analog_rel = 'h0;
   reg         [ 3:0]    up_adc_dac_trigger_rel = 'h0;
 
   reg         [31:0]    up_fifo_depth = 'h0;
 
-  reg         [31:0]    up_limit_0  = 'h0;
-  reg         [31:0]    up_limit_1  = 'h0;
-  reg         [31:0]    up_limit_2  = 'h0;
-  reg         [31:0]    up_limit_3  = 'h0;
+  reg         [31:0]    up_limit_0 = 'h0;
+  reg         [31:0]    up_limit_1 = 'h0;
+  reg         [31:0]    up_limit_2 = 'h0;
+  reg         [31:0]    up_limit_3 = 'h0;
 
-  reg         [31:0]    up_hysteresis_0  = 'h0;
-  reg         [31:0]    up_hysteresis_1  = 'h0;
-  reg         [31:0]    up_hysteresis_2  = 'h0;
-  reg         [31:0]    up_hysteresis_3  = 'h0;
+  reg         [31:0]    up_hysteresis_0 = 'h0;
+  reg         [31:0]    up_hysteresis_1 = 'h0;
+  reg         [31:0]    up_hysteresis_2 = 'h0;
+  reg         [31:0]    up_hysteresis_3 = 'h0;
 
   reg         [31:0]    up_edge_detect_enable_0 = 'h0;
   reg         [31:0]    up_rise_edge_enable_0   = 'h0;
@@ -172,7 +172,7 @@ module trigger_ip_regmap (
         up_wack <= 'h0;
         up_scratch <= 'h0;
       
-        up_trigger_logic <= 'h0;
+        up_triggers_rel <= 'h0;
         up_trigger_analog_rel <= 'h0;
         up_adc_dac_trigger_rel <= 'h0;
         
@@ -183,32 +183,32 @@ module trigger_ip_regmap (
         up_fall_edge_enable_0   <= 'h0;
         up_low_level_enable_0   <= 'h0;
         up_high_level_enable_0  <= 'h0;
-        up_limit_0  <= 'h0;
-        up_hysteresis_0  <= 'h0;      
-         
+        up_limit_0 <= 'h0;
+        up_hysteresis_0 <= 'h0;
+        
         up_edge_detect_enable_1 <= 'h0;
         up_rise_edge_enable_1   <= 'h0;
         up_fall_edge_enable_1   <= 'h0;
         up_low_level_enable_1   <= 'h0;
         up_high_level_enable_1  <= 'h0;
-        up_limit_1  <= 'h0;
-        up_hysteresis_1  <= 'h0;     
-         
+        up_limit_1 <= 'h0;
+        up_hysteresis_1 <= 'h0;
+        
         up_edge_detect_enable_2 <= 'h0;
         up_rise_edge_enable_2   <= 'h0;
         up_fall_edge_enable_2   <= 'h0;
         up_low_level_enable_2   <= 'h0;
         up_high_level_enable_2  <= 'h0;
-        up_limit_2  <= 'h0;
-        up_hysteresis_2  <= 'h0;     
-         
+        up_limit_2 <= 'h0;
+        up_hysteresis_2 <= 'h0;
+        
         up_edge_detect_enable_3 <= 'h0;
         up_rise_edge_enable_3   <= 'h0;
         up_fall_edge_enable_3   <= 'h0;
         up_low_level_enable_3   <= 'h0;
         up_high_level_enable_3  <= 'h0;
-        up_limit_3  <= 'h0;
-        up_hysteresis_3  <= 'h0;     
+        up_limit_3 <= 'h0;
+        up_hysteresis_3 <= 'h0;
     end else begin
         
       up_wack <= up_wreq;
@@ -216,7 +216,7 @@ module trigger_ip_regmap (
           up_scratch <= up_wdata;
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h2)) begin
-          up_trigger_logic <= up_wdata[3:0];
+          up_triggers_rel <= up_wdata[3:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h3)) begin
           up_trigger_analog_rel <= up_wdata;
@@ -338,7 +338,7 @@ module trigger_ip_regmap (
             case (up_raddr[4:0])
               5'h0:up_rdata <= up_version;
               5'h1:up_rdata <= up_scratch;
-              5'h2:up_rdata <= {25'h0,up_trigger_logic};
+              5'h2:up_rdata <= {25'h0,up_triggers_rel};
               5'h3:up_rdata <= up_fifo_depth;
               
               5'h10:up_rdata <= up_edge_detect_enable_0;
@@ -392,7 +392,7 @@ module trigger_ip_regmap (
   up_xfer_cntrl #(.DATA_WIDTH(938)) i_xfer_cntrl (
       .up_rstn (up_rstn),
       .up_clk (up_clk),
-      .up_data_cntrl ({ up_trigger_logic,             //  4
+      .up_data_cntrl ({ up_triggers_rel,              //  4
                         up_trigger_analog_rel,        //  2
                         up_adc_dac_trigger_rel,       //  4
                         up_fifo_depth,                // 32
@@ -432,8 +432,8 @@ module trigger_ip_regmap (
 
         .up_xfer_done (),
         .d_rst (1'b0),
-       .d_clk (up_clk),
-        .d_data_cntrl ({  trigger_logic,              //  4
+        .d_clk (up_clk),
+        .d_data_cntrl ({  triggers_rel,               //  4
                           trigger_analog_rel,         // 32
                           adc_dac_trigger_rel,        //  4
                           fifo_depth,                 // 32

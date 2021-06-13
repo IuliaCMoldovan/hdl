@@ -94,12 +94,33 @@ module axi_trigger #(
   // condition for internal trigger
   // bit 3: OR(0) / AND(1): the internal trigger condition, 
   // bits [2:0] - relationship between internal and external trigger
-  // 0 - internal trigger only
-  // 1 - external trigger only
-  // 2 - internal AND external trigger
-  // 3 - internal OR external trigger
-  // 4 - internal XOR external trigger
-  wire      [ 3:0]     trigger_rel;
+  //     0 - internal trigger only
+  //     1 - external trigger only
+  //     2 - internal AND external trigger
+  //     3 - internal OR external trigger
+  //     4 - internal XOR external trigger
+  wire      [ 3:0]     triggers_rel;
+
+  // relationship between analog and digital trigger (on all probes)
+  // 0 - continuous triggering
+  // 1 - digital triggering 
+  // 2 - analog triggering 
+  // 3 - reserved
+  // 4 - dac OR adc triggering 
+  // 5 - dac AND adc triggering 
+  // 6 - dac XOR adc triggering 
+  // 7 - option 4 negated
+  // 8 - option 5 negated
+  // 9 - option 6 negated
+  wire       [ 3:0]    adc_dig_trigger_rel;
+
+  // condition for the internal analog triggering;
+  // comparison between the probe and the limit
+  // 0 - lower than the limit 
+  // 1 - higher than the limit
+  // 2 - passing through high limit
+  // 3 - passing through low limit 
+  wire     [ 1:0]      trigger_adc_rel;
 
   // masks for data that comes from PROBE 0
   wire   [DW0-1 : 0]   edge_detect_enable_0;
@@ -129,35 +150,20 @@ module axi_trigger #(
   wire   [DW3-1 : 0]   low_level_enable_3;
   wire   [DW3-1 : 0]   high_level_enable_3;
 
-
   // limits for analog data to compare with
   wire   [DW0-1 : 0]   limit_0;
   wire   [DW1-1 : 0]   limit_1;
   wire   [DW2-1 : 0]   limit_2;
   wire   [DW3-1 : 0]   limit_3;
+  
+  // hysteresis values to determine range
+  wire       [31:0]    hysteresis_0;
+  wire       [31:0]    hysteresis_1;
+  wire       [31:0]    hysteresis_2;
+  wire       [31:0]    hysteresis_3;
 
   wire [NB_SELECTED-1 : 0] trigger_out_aux;
-
-  // condition for the internal analog triggering;
-  // comparison between the probe and the limit
-  // 0 - lower than the limit 
-  // 1 - higher than the limit
-  // 2 - passing through high limit
-  // 3 - passing through low limit 
-  wire     [ 1:0]      trigger_analog_rel;
-
-  // relationship between analog and digital trigger (on all probes)
-  // 0 - continuous triggering
-  // 1 - digital triggering 
-  // 2 - analog triggering 
-  // 3 - reserved
-  // 4 - dac OR adc triggering 
-  // 5 - dac AND adc triggering 
-  // 6 - dac XOR adc triggering 
-  // 7 - option 4 negated
-  // 8 - option 5 negated
-  // 9 - option 6 negated
-  wire       [ 3:0]    adc_dac_trigger_rel;
+  
   reg                  trigger_out_reg; 
   reg                  trigger_int;
 
@@ -189,9 +195,10 @@ module axi_trigger #(
  
  
   // determine if internal trigger occured
+  // condition on each probe trigger
   always @ (*) begin
       // OR
-    case (trigger_rel[3]) 
+    case (triggers_rel[3]) 
       // consider only probes that are selected for monitoring
       0: trigger_int = | (trigger_out_aux & valid_probes);
       // AND
@@ -203,7 +210,7 @@ module axi_trigger #(
   
   // check relationship between internal and external trigger
   always @ (*) begin
-    case (trigger_rel[2:0])
+    case (triggers_rel[2:0])
       3'd0: trigger_out_reg = trigger_int;
       3'd1: trigger_out_reg = trigger_ext;
       3'd2: trigger_out_reg = trigger_int & trigger_ext;
@@ -230,9 +237,9 @@ module axi_trigger #(
     .fall_edge_enable (fall_edge_enable_0),
     .low_level_enable (low_level_enable_0),
     .high_level_enable (high_level_enable_0),
-    .trigger_int_cond (trigger_rel[3]),
-    .trigger_analog_rel (trigger_analog_rel[1:0]),
-    .adc_dac_trigger_rel (adc_dac_trigger_rel[3:0]),
+    .trigger_int_cond (triggers_rel[3]),
+    .trigger_adc_rel (trigger_adc_rel[1:0]),
+    .adc_dig_trigger_rel (adc_dig_trigger_rel[3:0]),
     .trigger_out (trigger_out_aux[0])
   );
  
@@ -251,9 +258,9 @@ module axi_trigger #(
     .fall_edge_enable (fall_edge_enable_1),
     .low_level_enable (low_level_enable_1),
     .high_level_enable (high_level_enable_1),
-    .trigger_int_cond (trigger_rel[3]),
-    .trigger_analog_rel (trigger_analog_rel[1:0]),
-    .adc_dac_trigger_rel (adc_dac_trigger_rel[3:0]),
+    .trigger_int_cond (triggers_rel[3]),
+    .trigger_adc_rel (trigger_adc_rel[1:0]),
+    .adc_dig_trigger_rel (adc_dig_trigger_rel[3:0]),
     .trigger_out (trigger_out_aux[1])
   );
 
@@ -272,9 +279,9 @@ module axi_trigger #(
     .fall_edge_enable (fall_edge_enable_2),
     .low_level_enable (low_level_enable_2),
     .high_level_enable (high_level_enable_2),
-    .trigger_int_cond (trigger_rel[3]),
-    .trigger_analog_rel (trigger_analog_rel[1:0]),
-    .adc_dac_trigger_rel (adc_dac_trigger_rel[3:0]),
+    .trigger_int_cond (triggers_rel[3]),
+    .trigger_adc_rel (trigger_adc_rel[1:0]),
+    .adc_dig_trigger_rel (adc_dig_trigger_rel[3:0]),
     .trigger_out (trigger_out_aux[2])
   );
  
@@ -293,9 +300,9 @@ module axi_trigger #(
     .fall_edge_enable (fall_edge_enable_3),
     .low_level_enable (low_level_enable_3),
     .high_level_enable (high_level_enable_3),
-    .trigger_int_cond (trigger_rel[3]),
-    .trigger_analog_rel (trigger_analog_rel[1:0]),
-    .adc_dac_trigger_rel (adc_dac_trigger_rel[3:0]),
+    .trigger_int_cond (triggers_rel[3]),
+    .trigger_adc_rel (trigger_adc_rel[1:0]),
+    .adc_dig_trigger_rel (adc_dig_trigger_rel[3:0]),
     .trigger_out (trigger_out_aux[3])
   );
   
@@ -309,9 +316,9 @@ module axi_trigger #(
   trigger_ip_regmap i_regmap (
     .clk (clk),
     
-    .trigger_logic (trigger_rel),
-    .trigger_analog_rel (trigger_analog_rel),
-    .adc_dac_trigger_rel (adc_dac_trigger_rel),
+    .triggers_rel (triggers_rel),
+    .trigger_adc_rel (trigger_adc_rel),
+    .adc_dig_trigger_rel (adc_dig_trigger_rel),
     
     .fifo_depth (fifo_depth),
     

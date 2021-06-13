@@ -46,7 +46,7 @@ module probe_trigger #(
   input  [DW-1 : 0]  current_data,
   input  [DW-1 : 0]  limit,
 
-  input  [DW-1 : 0]  hysteresis,
+  input    [31:0]    hysteresis,
 
   // masks 
   input  [DW-1 : 0]  edge_detect_enable,
@@ -65,7 +65,7 @@ module probe_trigger #(
   // 1 - higher than the limit
   // 2 - passing through high limit
   // 3 - passing through low limit 
-  input    [ 1:0]    trigger_analog_rel,
+  input    [ 1:0]    trigger_adc_rel,
 
   // relationship between analog and digital trigger (on all probes)
   // 0 - continuous triggering
@@ -78,7 +78,7 @@ module probe_trigger #(
   // 7 - option 4 negated
   // 8 - option 5 negated
   // 9 - option 6 negated
-  input    [ 3:0]    adc_dac_trigger_rel,
+  input    [ 3:0]    adc_dig_trigger_rel,
 
   output             trigger_out
 );
@@ -110,7 +110,7 @@ module probe_trigger #(
   
   // check relationship between analog and digital trigger
   always @ (*) begin
-    case (adc_dac_trigger_rel[3:0])
+    case (adc_dig_trigger_rel[3:0])
       4'd0: trigger_out_int = 1'b1;
       4'd1: trigger_out_int = trigger_out_dac;
       4'd2: trigger_out_int = trigger_out_adc;
@@ -154,7 +154,7 @@ module probe_trigger #(
     .limit (limit),
     .hysteresis (hysteresis),
     .valid (valid),
-    .trigger_analog_rel (trigger_analog_rel[1 : 0]),
+    .trigger_adc_rel (trigger_adc_rel[1 : 0]),
     .trigger_out (trigger_out_adc)
   );
 endmodule
