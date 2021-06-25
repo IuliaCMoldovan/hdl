@@ -78,7 +78,7 @@ module probe_trigger #(
   // 7 - option 4 negated
   // 8 - option 5 negated
   // 9 - option 6 negated
-  input    [ 3:0]    adc_dig_trigger_rel,
+  input    [ 3:0]    trigger_type,
 
   output             trigger_out
 );
@@ -110,7 +110,7 @@ module probe_trigger #(
   
   // check relationship between analog and digital trigger
   always @ (*) begin
-    case (adc_dig_trigger_rel[3:0])
+    case (trigger_type[3:0])
       4'd0: trigger_out_int = 1'b1;
       4'd1: trigger_out_int = trigger_out_dac;
       4'd2: trigger_out_int = trigger_out_adc;
@@ -146,7 +146,8 @@ module probe_trigger #(
   
   // adc trigger
   adc_trigger #(
-    .DW (DW)
+    .DW (DW),
+    .SIGN_BITS(2)
   ) analog_data_triggering (
     .clk (clk),
     .rst (rst),

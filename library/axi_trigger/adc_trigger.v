@@ -36,7 +36,8 @@
 `timescale 1ns/100ps
 
 module adc_trigger #(
-  parameter  [ 9:0]  DW = 10'd32) (
+  parameter  [ 9:0]  DW = 10'd32,
+  parameter          SIGN_BITS = 2) (
 
   input              clk,
   input              rst,
@@ -59,8 +60,8 @@ module adc_trigger #(
   output            trigger_out
 );
   // internal signals in 2's complement
-  wire signed [DW-1 : 0] data_comp;
-  wire signed [DW-1 : 0] limit_comp;
+  wire signed [DW-SIGN_BITS-1 : 0] data_comp;
+  wire signed [DW-SIGN_BITS-1 : 0] limit_comp;
 
   reg               int_trigger_active;
 
@@ -78,8 +79,8 @@ module adc_trigger #(
   reg               passthrough_low;  // trigger when falling thorugh the limit
   // ---------------------------------------------------------------------------
 
-  assign data_comp = data;
-  assign limit_comp = limit;
+  assign data_comp = data[DW-3:0];
+  assign limit_comp = limit[DW-3:0];
   
   assign comp_low = !comp_high;
   
