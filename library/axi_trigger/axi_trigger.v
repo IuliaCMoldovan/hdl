@@ -236,7 +236,7 @@ module axi_trigger #(
   
   
   // check relationship between internal and external trigger
-  always @ (*) begin
+  always @ (posedge clk) begin
     case (triggers_rel[2:0])
       3'd0: trigger_out_reg = trigger_int;
       3'd1: trigger_out_reg = trigger_ext;
@@ -345,15 +345,12 @@ module axi_trigger #(
 //    
 //    .triggers_rel (triggers_rel),
 
-//    .trigger_adc_0(trigger_adc_0),
+//    .trigger_adc_0 (trigger_adc_0),
 //    .trigger_adc_1 (trigger_adc_1),
 //    .trigger_adc_2 (trigger_adc_2),
 //    .trigger_adc_3 (trigger_adc_3),
 
-//    .trigger_type_0 (trigger_type_0),
-//    .trigger_type_1 (trigger_type_1),
-//    .trigger_type_2 (trigger_type_2),
-//    .trigger_type_3 (trigger_type_3),
+//    .trigger_type (trigger_type),
 //    
 //    .fifo_depth (fifo_depth),
 //    

@@ -54,7 +54,10 @@ module trigger_ip_regmap (
   // 1 - higher than the limit
   // 2 - passing through high limit
   // 3 - passing through low limit 
-  output      [ 1:0]    trigger_analog_rel,
+  output      [ 1:0]    trigger_adc_0,
+  output      [ 1:0]    trigger_adc_1,
+  output      [ 1:0]    trigger_adc_2,
+  output      [ 1:0]    trigger_adc_3,
 
   // relationship between analog and digital trigger (on all probes)
   // 0 - continuous triggering
@@ -67,7 +70,7 @@ module trigger_ip_regmap (
   // 7 - option 4 negated
   // 8 - option 5 negated
   // 9 - option 6 negated
-  output      [ 3:0]    adc_dac_trigger_rel,
+  output      [ 3:0]    trigger_type,
 
   output      [31:0]    fifo_depth,
 
@@ -127,8 +130,11 @@ module trigger_ip_regmap (
   reg         [31:0]    up_scratch = 'h0;
 
   reg         [ 3:0]    up_triggers_rel = 'h0;
-  reg         [ 1:0]    up_trigger_analog_rel = 'h0;
-  reg         [ 3:0]    up_adc_dac_trigger_rel = 'h0;
+  reg         [ 1:0]    up_trigger_adc_0 = 'h0;
+  reg         [ 1:0]    up_trigger_adc_1 = 'h0;
+  reg         [ 1:0]    up_trigger_adc_2 = 'h0;
+  reg         [ 1:0]    up_trigger_adc_3 = 'h0;
+  reg         [ 3:0]    up_trigger_type = 'h0;
 
   reg         [31:0]    up_fifo_depth = 'h0;
 
@@ -173,8 +179,11 @@ module trigger_ip_regmap (
         up_scratch <= 'h0;
       
         up_triggers_rel <= 'h0;
-        up_trigger_analog_rel <= 'h0;
-        up_adc_dac_trigger_rel <= 'h0;
+        up_trigger_adc_0 <= 'h0;
+        up_trigger_adc_1 <= 'h0;
+        up_trigger_adc_2 <= 'h0;
+        up_trigger_adc_3 <= 'h0;
+        up_trigger_type <= 'h0;
         
         up_fifo_depth <= 'd0;
         
@@ -219,12 +228,9 @@ module trigger_ip_regmap (
           up_triggers_rel <= up_wdata[3:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h3)) begin
-          up_trigger_analog_rel <= up_wdata;
+          up_trigger_type <= up_wdata;
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h4)) begin
-          up_adc_dac_trigger_rel <= up_wdata;
-      end
-      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h5)) begin
           up_fifo_depth <= up_wdata;
       end
       
@@ -251,6 +257,9 @@ module trigger_ip_regmap (
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h16)) begin
           up_hysteresis_0 <= up_wdata[31:0];
       end
+      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h17)) begin
+          up_trigger_adc_0 <= up_wdata;
+      end
       
       
       // for PROBE 1
@@ -274,6 +283,9 @@ module trigger_ip_regmap (
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h1E)) begin
           up_hysteresis_1 <= up_wdata[31:0];
+      end
+      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h1F)) begin
+          up_trigger_adc_1 <= up_wdata;
       end
       
       
@@ -299,6 +311,9 @@ module trigger_ip_regmap (
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h26)) begin
           up_hysteresis_2 <= up_wdata[31:0];
       end
+      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h27)) begin
+          up_trigger_adc_2 <= up_wdata;
+      end
       
       
       // for PROBE 3
@@ -323,6 +338,9 @@ module trigger_ip_regmap (
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h2E)) begin
           up_hysteresis_3 <= up_wdata[31:0];
       end
+      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h2F)) begin
+          up_trigger_adc_3 <= up_wdata;
+      end
     end
   end
 
@@ -339,7 +357,8 @@ module trigger_ip_regmap (
               5'h0:up_rdata <= up_version;
               5'h1:up_rdata <= up_scratch;
               5'h2:up_rdata <= {25'h0,up_triggers_rel};
-              5'h3:up_rdata <= up_fifo_depth;
+              5'h3:up_rdata <= up_trigger_type;
+              5'h4:up_rdata <= up_fifo_depth;
               
               5'h10:up_rdata <= up_edge_detect_enable_0;
               5'h11:up_rdata <= up_rise_edge_enable_0;
@@ -348,6 +367,7 @@ module trigger_ip_regmap (
               5'h14:up_rdata <= up_high_level_enable_0;
               5'h15:up_rdata <= up_limit_0;
               5'h16:up_rdata <= up_hysteresis_0;
+              5'h17:up_rdata <= up_trigger_adc_0;
               
               5'h18:up_rdata <= up_edge_detect_enable_1;
               5'h19:up_rdata <= up_rise_edge_enable_1;
@@ -356,6 +376,7 @@ module trigger_ip_regmap (
               5'h1C:up_rdata <= up_high_level_enable_1;  
               5'h1D:up_rdata <= up_limit_1;  
               5'h1E:up_rdata <= up_hysteresis_1;
+              5'h1F:up_rdata <= up_trigger_adc_1;
               
               5'h20:up_rdata <= up_edge_detect_enable_2;
               5'h21:up_rdata <= up_rise_edge_enable_2;
@@ -364,6 +385,7 @@ module trigger_ip_regmap (
               5'h24:up_rdata <= up_high_level_enable_2;
               5'h25:up_rdata <= up_limit_2;
               5'h26:up_rdata <= up_hysteresis_2;
+              5'h27:up_rdata <= up_trigger_adc_2;
               
               5'h28:up_rdata <= up_edge_detect_enable_3;
               5'h29:up_rdata <= up_rise_edge_enable_3;
@@ -372,6 +394,7 @@ module trigger_ip_regmap (
               5'h2C:up_rdata <= up_high_level_enable_3;
               5'h2D:up_rdata <= up_limit_3;
               5'h2E:up_rdata <= up_hysteresis_3;
+              5'h2F:up_rdata <= up_trigger_adc_3;
           default:up_rdata <= 0;
         endcase
       end else begin
@@ -389,12 +412,11 @@ module trigger_ip_regmap (
   
   
   // clock domain crossing
-  up_xfer_cntrl #(.DATA_WIDTH(938)) i_xfer_cntrl (
+  up_xfer_cntrl #(.DATA_WIDTH(1028)) i_xfer_cntrl (
       .up_rstn (up_rstn),
       .up_clk (up_clk),
       .up_data_cntrl ({ up_triggers_rel,              //  4
-                        up_trigger_analog_rel,        //  2
-                        up_adc_dac_trigger_rel,       //  4
+                        up_trigger_type,              //  4
                         up_fifo_depth,                // 32
                         
                         up_high_level_enable_0,       // 32
@@ -404,6 +426,7 @@ module trigger_ip_regmap (
                         up_edge_detect_enable_0,      // 32
                         up_limit_0,                   // 32
                         up_hysteresis_0,              // 32
+                        up_trigger_adc_0,             //  2
                         
                         up_high_level_enable_1,       // 32
                         up_low_level_enable_1,        // 32
@@ -412,6 +435,7 @@ module trigger_ip_regmap (
                         up_edge_detect_enable_1,      // 32
                         up_limit_1,                   // 32
                         up_hysteresis_1,              // 32
+                        up_trigger_adc_1,             //  2
                         
                         up_high_level_enable_2,       // 32
                         up_low_level_enable_2,        // 32
@@ -420,6 +444,7 @@ module trigger_ip_regmap (
                         up_edge_detect_enable_2,      // 32
                         up_limit_2,                   // 32
                         up_hysteresis_2,              // 32
+                        up_trigger_adc_2,             //  2
                         
                         up_high_level_enable_3,       // 32
                         up_low_level_enable_3,        // 32
@@ -427,48 +452,52 @@ module trigger_ip_regmap (
                         up_rise_edge_enable_3,        // 32
                         up_edge_detect_enable_3,      // 32
                         up_limit_3,                   // 32
-                        up_hysteresis_3               // 32
+                        up_hysteresis_3,              // 32
+                        up_trigger_adc_3              //  2
     }),
 
         .up_xfer_done (),
         .d_rst (1'b0),
         .d_clk (up_clk),
-        .d_data_cntrl ({  triggers_rel,               //  4
-                          trigger_analog_rel,         // 32
-                          adc_dac_trigger_rel,        //  4
-                          fifo_depth,                 // 32
+        .d_data_cntrl ({  triggers_rel,              //  4
+                          trigger_type,              //  4
+                          fifo_depth,                // 32
                           
-                          high_level_enable_0,        // 32
-                          low_level_enable_0,         // 32
-                          fall_edge_enable_0,         // 32
-                          rise_edge_enable_0,         // 32
-                          edge_detect_enable_0,       // 32
-                          limit_0,                    // 32
-                          hysteresis_0,               // 32
+                          high_level_enable_0,       // 32
+                          low_level_enable_0,        // 32
+                          fall_edge_enable_0,        // 32
+                          rise_edge_enable_0,        // 32
+                          edge_detect_enable_0,      // 32
+                          limit_0,                   // 32
+                          hysteresis_0,              // 32
+                          trigger_adc_0,             //  2
                           
-                          high_level_enable_1,        // 32
-                          low_level_enable_1,         // 32
-                          fall_edge_enable_1,         // 32
-                          rise_edge_enable_1,         // 32
-                          edge_detect_enable_1,       // 32
-                          limit_1,                    // 32
-                          hysteresis_1,               // 32
+                          high_level_enable_1,       // 32
+                          low_level_enable_1,        // 32
+                          fall_edge_enable_1,        // 32
+                          rise_edge_enable_1,        // 32
+                          edge_detect_enable_1,      // 32
+                          limit_1,                   // 32
+                          hysteresis_1,              // 32
+                          trigger_adc_1,             //  2
                           
-                          high_level_enable_2,        // 32
-                          low_level_enable_2,         // 32
-                          fall_edge_enable_2,         // 32
-                          rise_edge_enable_2,         // 32
-                          edge_detect_enable_2,       // 32
-                          limit_2,                    // 32
-                          hysteresis_2,               // 32
+                          high_level_enable_2,       // 32
+                          low_level_enable_2,        // 32
+                          fall_edge_enable_2,        // 32
+                          rise_edge_enable_2,        // 32
+                          edge_detect_enable_2,      // 32
+                          limit_2,                   // 32
+                          hysteresis_2,              // 32
+                          trigger_adc_2,             //  2
                           
-                          high_level_enable_3,        // 32
-                          low_level_enable_3,         // 32
-                          fall_edge_enable_3,         // 32
-                          rise_edge_enable_3,         // 32
-                          edge_detect_enable_3,       // 32
-                          limit_3,                    // 32
-                          hysteresis_3                // 32
+                          high_level_enable_3,       // 32
+                          low_level_enable_3,        // 32
+                          fall_edge_enable_3,        // 32
+                          rise_edge_enable_3,        // 32
+                          edge_detect_enable_3,      // 32
+                          limit_3,                   // 32
+                          hysteresis_3,              // 32
+                          trigger_adc_3              //  2
     }));
 endmodule
 
