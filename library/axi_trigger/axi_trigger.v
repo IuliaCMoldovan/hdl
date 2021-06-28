@@ -72,18 +72,11 @@ module axi_trigger #(
   //     4 - internal XOR external trigger
   input     [ 3:0]     triggers_rel,
 
-  // relationship between analog and digital trigger (on all probes)
+  // type of triggering to be applied on input 
   // 0 - continuous triggering
-  // 1 - digital triggering 
-  // 2 - analog triggering 
-  // 3 - reserved
-  // 4 - dac OR adc triggering 
-  // 5 - dac AND adc triggering 
-  // 6 - dac XOR adc triggering 
-  // 7 - option 4 negated
-  // 8 - option 5 negated
-  // 9 - option 6 negated
-  input     [ 3:0]     trigger_type,
+  // 1 - analog triggering 
+  // 2 - digital triggering 
+  input     [ 1:0]     trigger_type,
 
   // condition for the internal analog triggering,
   // comparison between the probe and the limit
@@ -265,8 +258,8 @@ module axi_trigger #(
     .low_level_enable (low_level_enable_0),
     .high_level_enable (high_level_enable_0),
     .trigger_int_cond (triggers_rel[3]),
-    .trigger_adc_rel (trigger_adc_0[1:0]),
-    .trigger_type (trigger_type[3:0]),
+    .trigger_adc_rel (trigger_adc_0),
+    .trigger_type (trigger_type),
     .trigger_out (trigger_out_aux[0])
   );
  
@@ -286,8 +279,8 @@ module axi_trigger #(
     .low_level_enable (low_level_enable_1),
     .high_level_enable (high_level_enable_1),
     .trigger_int_cond (triggers_rel[3]),
-    .trigger_adc_rel (trigger_adc_1[1:0]),
-    .trigger_type (trigger_type[3:0]),
+    .trigger_adc_rel (trigger_adc_1),
+    .trigger_type (trigger_type),
     .trigger_out (trigger_out_aux[1])
   );
 
@@ -307,8 +300,8 @@ module axi_trigger #(
     .low_level_enable (low_level_enable_2),
     .high_level_enable (high_level_enable_2),
     .trigger_int_cond (triggers_rel[3]),
-    .trigger_adc_rel (trigger_adc_2[1:0]),
-    .trigger_type (trigger_type[3:0]),
+    .trigger_adc_rel (trigger_adc_2),
+    .trigger_type (trigger_type),
     .trigger_out (trigger_out_aux[2])
   );
  
@@ -328,8 +321,8 @@ module axi_trigger #(
     .low_level_enable (low_level_enable_3),
     .high_level_enable (high_level_enable_3),
     .trigger_int_cond (triggers_rel[3]),
-    .trigger_adc_rel (trigger_adc_3[1:0]),
-    .trigger_type (trigger_type[3:0]),
+    .trigger_adc_rel (trigger_adc_3),
+    .trigger_type (trigger_type),
     .trigger_out (trigger_out_aux[3])
   );
   

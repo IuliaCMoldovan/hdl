@@ -79,19 +79,6 @@ module digital_trigger #(
 
   // signal name changes 
   assign trigger_out = int_trigger_active;
-   
-
-  // SIGNAL IS ALREADY DELAYED 
-  // delay signals 
-  //always @ (posedge clk) begin
-  //  if (rst == 1'b1) begin
-  //    prev_data <= 'b0;
-  //  end else begin
-  //    if (valid == 1'b1) begin
-  //      prev_data <= current_data;
-  //    end
-  //  end
-  //end
   
   
   // detect transition

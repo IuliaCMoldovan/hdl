@@ -67,18 +67,11 @@ module probe_trigger #(
   // 3 - passing through low limit 
   input    [ 1:0]    trigger_adc_rel,
 
-  // relationship between analog and digital trigger (on all probes)
+  // type of triggering to be applied on input 
   // 0 - continuous triggering
-  // 1 - digital triggering 
-  // 2 - analog triggering 
-  // 3 - reserved
-  // 4 - dac OR adc triggering 
-  // 5 - dac AND adc triggering 
-  // 6 - dac XOR adc triggering 
-  // 7 - option 4 negated
-  // 8 - option 5 negated
-  // 9 - option 6 negated
-  input    [ 3:0]    trigger_type,
+  // 1 - analog triggering 
+  // 2 - digital triggering 
+  input    [ 1:0]    trigger_type,
 
   output             trigger_out
 );
@@ -110,17 +103,17 @@ module probe_trigger #(
   
   // check relationship between analog and digital trigger
   always @ (*) begin
-    case (trigger_type[3:0])
-      4'd0: trigger_out_int = 1'b1;
-      4'd1: trigger_out_int = trigger_out_dac;
-      4'd2: trigger_out_int = trigger_out_adc;
-      4'd3: trigger_out_int = 1'b0; // reserved
-      4'd4: trigger_out_int = trigger_out_dac | trigger_out_adc;
-      4'd5: trigger_out_int = trigger_out_dac & trigger_out_adc;
-      4'd6: trigger_out_int = trigger_out_dac ^ trigger_out_adc;
-      4'd7: trigger_out_int = ~(trigger_out_dac | trigger_out_adc);
-      4'd8: trigger_out_int = ~(trigger_out_dac & trigger_out_adc);
-      4'd9: trigger_out_int = ~(trigger_out_dac ^ trigger_out_adc);
+    case (trigger_type[1:0])
+      2'd0: trigger_out_int = 1'b1;
+      2'd1: trigger_out_int = trigger_out_dac;
+      2'd2: trigger_out_int = trigger_out_adc;
+      //4'd3: trigger_out_int = 1'b0; // reserved
+      //4'd4: trigger_out_int = trigger_out_dac | trigger_out_adc;
+      //4'd5: trigger_out_int = trigger_out_dac & trigger_out_adc;
+      //4'd6: trigger_out_int = trigger_out_dac ^ trigger_out_adc;
+      //4'd7: trigger_out_int = ~(trigger_out_dac | trigger_out_adc);
+      //4'd8: trigger_out_int = ~(trigger_out_dac & trigger_out_adc);
+      //4'd9: trigger_out_int = ~(trigger_out_dac ^ trigger_out_adc);
       default: trigger_out_int = 1'b0; // disable
     endcase
   end

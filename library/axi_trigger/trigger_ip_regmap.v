@@ -59,18 +59,11 @@ module trigger_ip_regmap (
   output      [ 1:0]    trigger_adc_2,
   output      [ 1:0]    trigger_adc_3,
 
-  // relationship between analog and digital trigger (on all probes)
+  // type of triggering to be applied on input 
   // 0 - continuous triggering
-  // 1 - digital triggering 
-  // 2 - analog triggering 
-  // 3 - reserved
-  // 4 - dac OR adc triggering 
-  // 5 - dac AND adc triggering 
-  // 6 - dac XOR adc triggering 
-  // 7 - option 4 negated
-  // 8 - option 5 negated
-  // 9 - option 6 negated
-  output      [ 3:0]    trigger_type,
+  // 1 - analog triggering 
+  // 2 - digital triggering 
+  output      [ 1:0]    trigger_type,
 
   output      [31:0]    fifo_depth,
 
@@ -134,7 +127,7 @@ module trigger_ip_regmap (
   reg         [ 1:0]    up_trigger_adc_1 = 'h0;
   reg         [ 1:0]    up_trigger_adc_2 = 'h0;
   reg         [ 1:0]    up_trigger_adc_3 = 'h0;
-  reg         [ 3:0]    up_trigger_type = 'h0;
+  reg         [ 1:0]    up_trigger_type = 'h0;
 
   reg         [31:0]    up_fifo_depth = 'h0;
 
@@ -412,11 +405,11 @@ module trigger_ip_regmap (
   
   
   // clock domain crossing
-  up_xfer_cntrl #(.DATA_WIDTH(1028)) i_xfer_cntrl (
+  up_xfer_cntrl #(.DATA_WIDTH(1026)) i_xfer_cntrl (
       .up_rstn (up_rstn),
       .up_clk (up_clk),
       .up_data_cntrl ({ up_triggers_rel,              //  4
-                        up_trigger_type,              //  4
+                        up_trigger_type,              //  2
                         up_fifo_depth,                // 32
                         
                         up_high_level_enable_0,       // 32
@@ -460,7 +453,7 @@ module trigger_ip_regmap (
         .d_rst (1'b0),
         .d_clk (up_clk),
         .d_data_cntrl ({  triggers_rel,              //  4
-                          trigger_type,              //  4
+                          trigger_type,              //  2
                           fifo_depth,                // 32
                           
                           high_level_enable_0,       // 32
