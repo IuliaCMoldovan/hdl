@@ -9,7 +9,7 @@ adi_project_files debug_design_zed [list \
   "$ad_hdl_dir/library/axi_trigger/axi_trigger.v" \
   "$ad_hdl_dir/library/axi_trigger/probe_trigger.v" \
   "$ad_hdl_dir/library/axi_trigger/adc_trigger.v" \
-  "$ad_hdl_dir/library/axi_trigger/dac_trigger.v" \
+  "$ad_hdl_dir/library/axi_trigger/digital_trigger.v" \
   "$ad_hdl_dir/library/axi_trigger/trigger_ip_regmap.v" \
   "$ad_hdl_dir/library/common/ad_iobuf.v"]
 

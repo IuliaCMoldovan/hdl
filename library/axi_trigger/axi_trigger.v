@@ -77,7 +77,7 @@ module axi_trigger #(
   // 1 - analog triggering 
   // 2 - digital triggering 
   input     [ 1:0]     trigger_type,
-
+  
   // condition for the internal analog triggering,
   // comparison between the probe and the limit
   // 0 - lower than the limit 

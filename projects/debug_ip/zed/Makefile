@@ -1,5 +1,5 @@
 ####################################################################################
-## Copyright 2021(c) Analog Devices, Inc.
+## Copyright 2018(c) Analog Devices, Inc.
 ## Auto-generated, do not modify!
 ####################################################################################
 
@@ -10,9 +10,9 @@ M_DEPS += ../../common/zed/zed_system_bd.tcl
 M_DEPS += ../../../library/common/ad_iobuf.v
 M_DEPS += ../../../library/axi_trigger/trigger_ip_regmap.v
 M_DEPS += ../../../library/axi_trigger/probe_trigger.v
-M_DEPS += ../../../library/axi_trigger/adc_trigger.v
-M_DEPS += ../../../library/axi_trigger/dac_trigger.v
+M_DEPS += ../../../library/axi_trigger/digital_trigger.v
 M_DEPS += ../../../library/axi_trigger/axi_trigger.v
+M_DEPS += ../../../library/axi_trigger/adc_trigger.v
 
 LIB_DEPS += axi_clkgen
 LIB_DEPS += axi_dmac

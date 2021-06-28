@@ -71,7 +71,7 @@ ad_connect trigger_clk trigger_reset/slowest_sync_clk
 ad_connect trigger_reset/ext_reset_in sys_rstgen/peripheral_aresetn
 ad_connect trigger_reset/bus_struct_reset trigger_fifo/rst
 
-ad_connect axi_trigger/adc_data 	trigger_fifo/data_in        
+#ad_connect axi_trigger/adc_data 	trigger_fifo/data_in        
 ad_connect axi_trigger/data_valids 	trigger_fifo/data_in_valid  
 
 ad_connect trigger_fifo/addr_w 		bram_dd/addra                    
@@ -98,12 +98,12 @@ ad_connect sys_cpu_clk trigger_dmac/m_dest_axi_aclk
 #ad_connect sys_cpu_clk sys_ps7/S_AXI_HP1_ACLK
 #ad_connect trigger_dmac/m_dest_axi sys_ps7/S_AXI_HP1
 
-connect_bd_net [get_bd_pins axi_trigger/clk] [get_bd_pins sys_ps7/FCLK_CLK0]
+ad_connect axi_trigger/clk sys_ps7/FCLK_CLK0
 
 # Alternative for when using multi-bit valid_probes
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0
 set_property -dict [list CONFIG.CONST_WIDTH {2} CONFIG.CONST_VAL {3}] [get_bd_cells xlconstant_0]
-connect_bd_net [get_bd_pins xlconstant_0/dout] [get_bd_pins axi_trigger/valid_probes]
+ad_connect xlconstant_0/dout axi_trigger/valid_probes
 # # #
 #create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0
 #connect_bd_net [get_bd_pins xlconstant_0/dout] [get_bd_pins axi_trigger/data_valid_0]

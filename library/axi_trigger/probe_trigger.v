@@ -101,7 +101,7 @@ module probe_trigger #(
   end
   
   
-  // check relationship between analog and digital trigger
+  // choose if analog or digital trigger
   always @ (*) begin
     case (trigger_type[1:0])
       2'd0: trigger_out_int = 1'b1;

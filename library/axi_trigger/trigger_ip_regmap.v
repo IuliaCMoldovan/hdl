@@ -63,7 +63,6 @@ module trigger_ip_regmap (
   // 0 - continuous triggering
   // 1 - analog triggering 
   // 2 - digital triggering 
-  output      [ 1:0]    trigger_type,
 
   output      [31:0]    fifo_depth,
 
