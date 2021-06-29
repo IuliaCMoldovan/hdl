@@ -59,8 +59,6 @@ module digital_trigger #(
 
   output             trigger_out
 );
-  // SIGNAL IS ALREADY DELAYED 
-  //reg    [DW-1 : 0]  prev_data = 'b0;
 
   reg    [DW-1 : 0]  edge_detect;
   reg    [DW-1 : 0]  rise_edge;
