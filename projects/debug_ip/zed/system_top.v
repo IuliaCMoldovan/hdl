@@ -94,10 +94,12 @@ module system_top (
   wire    [ 1:0]  iic_mux_sda_i_s;
   wire    [ 1:0]  iic_mux_sda_o_s;
   wire            iic_mux_sda_t_s;
-  wire 			  debug_btn_trig;
-  wire 	  [11:0]  debug_probe;
-  wire 	  [7:0]   debug_led;
-  wire 	  [7:0]   debug_led_extra;
+  wire 			  debug_btn_trig_ext;
+  wire 	  [ 7:0]  debug_probe0;
+  wire 	  [ 7:0]  debug_probe1;
+  wire 	  [ 7:0]  debug_probe2;
+  wire 	  [ 7:0]  debug_probe3;
+  wire 	  [ 7:0]  debug_led;
   
   assign gpio_i[63:32] = gpio_o[63:32];
 
@@ -112,11 +114,11 @@ module system_top (
     .dio_p({gpio_bd[31:27], gpio_bd[10:5]}));
  
   ad_iobuf #(
-    .DATA_WIDTH(21)
+    .DATA_WIDTH(41)
   ) i_iobuf_debug (
-    .dio_t(21'h1FFF),
-    .dio_i({debug_led, 13'h0}),
-    .dio_o({debug_led_extra, debug_probe, debug_btn_trig}),
+    .dio_t(41'h1FFFFFFFF),
+    .dio_i({debug_led, 33'h0}),
+    .dio_o({8'b0, debug_probe0, debug_probe1, debug_probe2, debug_probe3, debug_btn_trig_ext}),
     .dio_p({
 		gpio_bd[26:11],
 		gpio_bd[4:0]		
@@ -204,8 +206,11 @@ module system_top (
     .spi1_sdi_i (1'b0),
     .spi1_sdo_i (1'b0),
     .spi1_sdo_o (),
-	.debug_btn_trig(debug_btn_trig),
-    .debug_probe(debug_probe),
+	.debug_btn_trig_ext(debug_btn_trig_ext),
+    .debug_probe0(debug_probe0),
+    .debug_probe1(debug_probe1),
+    .debug_probe2(debug_probe2),
+    .debug_probe3(debug_probe3),
     .debug_led(debug_led)
 	);
 

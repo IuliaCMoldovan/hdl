@@ -45,8 +45,7 @@ ad_ip_parameter trigger_dmac CONFIG.DMA_AXI_PROTOCOL_DEST 1
 ad_ip_parameter trigger_dmac CONFIG.SYNC_TRANSFER_START true
 ad_ip_parameter trigger_dmac CONFIG.DISABLE_DEBUG_REGISTERS $DISABLE_DMAC_DEBUG
 
-ad_ip_instance proc_sys_reset sys_rstgen
-ad_ip_parameter sys_rstgen CONFIG.C_EXT_RST_WIDTH 1
+ad_ip_instance proc_sys_reset trigger_rstgen
 
 ad_ip_instance blk_mem_gen bram_dd
 ad_ip_parameter bram_dd CONFIG.use_bram_block {Stand_Alone}
@@ -69,7 +68,7 @@ ad_ip_parameter bram_dd CONFIG.Write_Depth_A {8192}
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0
 set_property -dict [list CONFIG.CONST_WIDTH {2} CONFIG.CONST_VAL {3}] [get_bd_cells xlconstant_0]
 ad_connect  xlconstant_0/dout                axi_trigger/valid_probes
-ad_connect  axi_trigger/clk                  sys_ps7/FCLK_CLK0
+ad_connect  sys_ps7/FCLK_CLK0                axi_trigger/clk
 ad_connect  axi_trigger/adc_data0 	         trigger_fifo/data_in        
 ad_connect  axi_trigger/data_valids 	     trigger_fifo/data_in_valid  
 ad_connect  debug_btn_trig_ext               axi_trigger/trigger_ext
@@ -82,19 +81,20 @@ ad_connect  trigger_dmac/fifo_wr_sync        axi_trigger/trigger_out
 
 # system reset/clock definitions
 
-ad_connect  sys_cpu_clk                      sys_ps7/FCLK_CLK0
-ad_connect  sys_cpu_reset                    sys_rstgen/peripheral_reset
-ad_connect  sys_cpu_resetn                   sys_rstgen/peripheral_aresetn
-ad_connect  sys_cpu_clk                      sys_rstgen/slowest_sync_clk
-ad_connect  sys_rstgen/ext_reset_in          sys_ps7/FCLK_RESET0_N
+#ad_connect  sys_cpu_clk                      sys_ps7/FCLK_CLK0
+#ad_connect  sys_cpu_reset                    trigger_rstgen/peripheral_reset
+#ad_connect  sys_cpu_resetn                   trigger_rstgen/peripheral_aresetn
+#ad_connect  sys_cpu_clk                      trigger_rstgen/slowest_sync_clk
+#ad_connect  trigger_rstgen/ext_reset_in      sys_ps7/FCLK_RESET0_N
 
+ad_connect  trigger_clk                      axi_trigger/clk_out
 ad_connect  trigger_clk                      trigger_fifo/clk
 ad_connect  trigger_clk                      bram_dd/clkb
 ad_connect  trigger_clk                      bram_dd/clka
 ad_connect  trigger_clk                      trigger_dmac/fifo_wr_clk
-ad_connect  trigger_clk                      sys_rstgen/slowest_sync_clk
-ad_connect  sys_rstgen/ext_reset_in          sys_rstgen/peripheral_aresetn
-ad_connect  sys_rstgen/bus_struct_reset      trigger_fifo/rst
+ad_connect  trigger_clk                      trigger_rstgen/slowest_sync_clk
+ad_connect  trigger_rstgen/ext_reset_in      sys_rstgen/peripheral_aresetn
+ad_connect  trigger_rstgen/bus_struct_reset  trigger_fifo/rst
 			         
 ad_connect  trigger_fifo/addr_w 		     bram_dd/addra                    
 ad_connect  trigger_fifo/din_w  		     bram_dd/dina                     
@@ -104,12 +104,12 @@ ad_connect  trigger_fifo/addr_r 		     bram_dd/addrb
 ad_connect  trigger_fifo/dout_r 		     bram_dd/doutb                    
 ad_connect  trigger_fifo/en_r   		     bram_dd/enb                      
 		   
-ad_connect  trigger_fifo/data_out 			trigger_dmac/fifo_wr_din  
-ad_connect  trigger_fifo/data_out_valid     trigger_dmac/fifo_wr_en   
+ad_connect  trigger_fifo/data_out 			 trigger_dmac/fifo_wr_din  
+ad_connect  trigger_fifo/data_out_valid      trigger_dmac/fifo_wr_en   
 
 # logic analyzer DMA
-ad_connect sys_cpu_clk                      trigger_dmac/m_dest_axi_aclk
-ad_connect sys_cpu_resetn                   trigger_dmac/m_dest_axi_aresetn
+ad_connect sys_cpu_clk                       trigger_dmac/m_dest_axi_aclk
+ad_connect sys_cpu_resetn                    trigger_dmac/m_dest_axi_aresetn
 
 
 #ad_connect trigger_dmac/m_dest_axi          axi_rd_wr_combiner_logic/s_wr_axi
@@ -123,8 +123,8 @@ ad_connect sys_cpu_resetn                   trigger_dmac/m_dest_axi_aresetn
 ad_cpu_interconnect 0x44000000 axi_trigger
 ad_cpu_interconnect 0x7C400000 trigger_dmac
 
-ad_mem_hp1_interconnect $sys_cpu_clk        sys_ps7/S_AXI_HP1
-ad_mem_hp1_interconnect $sys_cpu_clk        trigger_dmac/m_dest_axi
+ad_mem_hp1_interconnect $sys_cpu_clk         sys_ps7/S_AXI_HP1
+ad_mem_hp1_interconnect $sys_cpu_clk         trigger_dmac/m_dest_axi
 
 
 # interrupts
