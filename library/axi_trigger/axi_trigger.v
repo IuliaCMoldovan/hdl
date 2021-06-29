@@ -46,7 +46,6 @@ module axi_trigger #(
 
   input                trigger_ext,
   
-  input     [15:0]     valid_probes,
 
   input  [DW0-1 : 0]   probe0,
   input  [DW1-1 : 0]   probe1,
@@ -94,6 +93,7 @@ module axi_trigger #(
   reg                  trigger_out_reg; 
   reg                  trigger_int;
   
+  wire      [15:0]     valid_probes;
   // condition for internal trigger
   // bit 3: OR(0) / AND(1): the internal trigger condition, 
   // bits [2:0] - relationship between internal and external trigger
@@ -343,6 +343,7 @@ module axi_trigger #(
   trigger_ip_regmap i_regmap (
     .clk (clk),
     
+    .valid_probes (valid_probes),
     .triggers_rel (triggers_rel),
 
     .trigger_adc_0 (trigger_adc_0),
