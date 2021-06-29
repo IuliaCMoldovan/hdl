@@ -16,14 +16,9 @@ create_bd_port -dir O -from 7 -to 0 debug_led
 
 # Create cells
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_0
-set_property -dict [list CONFIG.DIN_TO {4} CONFIG.DIN_FROM {11} CONFIG.DIN_WIDTH {12} CONFIG.DIN_FROM {11} CONFIG.DOUT_WIDTH {8}] [get_bd_cells xlslice_0]
+set_property -dict [list CONFIG.DIN_TO {4} CONFIG.DIN_FROM {11} CONFIG.DIN_WIDTH {8} CONFIG.DIN_FROM {11} CONFIG.DOUT_WIDTH {8}] [get_bd_cells xlslice_0]
 ad_connect debug_probe0                     xlslice_0/Din
 ad_connect debug_led                        xlslice_0/Dout
-
-create_bd_cell -type ip -vlnv xilinx.com:ip:ila:6.2 ila_0
-set_property -dict [list CONFIG.C_PROBE0_WIDTH {8} CONFIG.C_DATA_DEPTH {4096} CONFIG.C_NUM_OF_PROBES {1} CONFIG.C_ENABLE_ILA_AXI_MON {false} CONFIG.C_MONITOR_TYPE {Native}] [get_bd_cells ila_0]
-ad_connect ila_0/probe0 xlslice_0/Dout
-ad_connect ila_0/clk sys_ps7/FCLK_CLK0
 
 
 
@@ -65,9 +60,6 @@ ad_ip_parameter bram_dd CONFIG.Write_Depth_A {8192}
 
 
 # connections
-create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0
-set_property -dict [list CONFIG.CONST_WIDTH {2} CONFIG.CONST_VAL {3}] [get_bd_cells xlconstant_0]
-ad_connect  xlconstant_0/dout                axi_trigger/valid_probes
 ad_connect  sys_ps7/FCLK_CLK0                axi_trigger/clk
 ad_connect  axi_trigger/adc_data0 	         trigger_fifo/data_in        
 ad_connect  axi_trigger/data_valids 	     trigger_fifo/data_in_valid  
