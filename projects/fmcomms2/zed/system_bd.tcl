@@ -62,7 +62,7 @@ ad_ip_parameter bram_dd CONFIG.Write_Depth_A {8192}
 
 # connections
 ad_connect util_ad9361_adc_fifo/dout_clk                  axi_trigger/clk    
-ad_connect util_ad9361_adc_fifo/dout_rstn                 adc_trigger/reset
+ad_connect util_ad9361_adc_fifo/dout_rstn                 axi_trigger/rst
 
 ad_connect util_ad9361_adc_fifo/dout_data_0               axi_trigger/probe0
 ad_connect util_ad9361_adc_fifo/dout_data_1               axi_trigger/probe1
