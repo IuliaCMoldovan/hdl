@@ -104,8 +104,6 @@ module trigger_ip_regmap (
   output      [31:0]    low_level_enable_3,
   output      [31:0]    high_level_enable_3,
 
-  output                rst,
-
   // bus interface
   input                 up_rstn,
   input                 up_clk,
@@ -406,13 +404,6 @@ module trigger_ip_regmap (
     end
   end
 
-  ad_rst i_core_rst_reg (
-      .rst_async(~up_rstn), 
-      .clk(clk), 
-      .rstn(), 
-      .rst(rst)
-  );
-  
   
   // clock domain crossing
   up_xfer_cntrl #(.DATA_WIDTH(958)) i_xfer_cntrl (
