@@ -150,10 +150,10 @@ module axi_trigger #(
   wire   [DW3-1 : 0]   high_level_enable_3;
 
   // limits for analog data to compare with
-  wire   [DW0-1 : 0]   limit_0;
-  wire   [DW1-1 : 0]   limit_1;
-  wire   [DW2-1 : 0]   limit_2;
-  wire   [DW3-1 : 0]   limit_3;
+  wire      [31:0]    limit_0;
+  wire      [31:0]    limit_1;
+  wire      [31:0]    limit_2;
+  wire      [31:0]    limit_3;
   
   // hysteresis values to determine range
   wire      [31:0]    hysteresis_0;
@@ -186,14 +186,19 @@ module axi_trigger #(
   reg    [DW1-1 : 0]   probe1_d2;
   reg    [DW2-1 : 0]   probe2_d2;
   reg    [DW3-1 : 0]   probe3_d2;
-  reg    [DW3-1 : 0]   probe3_d2;
   reg       [15:0]     valid_probes_d2;
   // ---------------------------------------------------------------------------
 
   // assign outputs 
   assign data_valids = valid_probes_d2;
-  assign clk_out = clk;
   
+  ad_data_clk #(
+    .SINGLE_ENDED(1)
+  ) i_ad_data_clk (
+    .clk_in_p (clk),
+    .clk (clk_out)
+  );
+
   
   // forward the input data and valid to outputs
   // with 2 clock cycles delay
@@ -257,7 +262,7 @@ module axi_trigger #(
     .rst (rst),
     .valid (valid_probes[0]),
     .current_data (probe0),
-    .limit (limit_0),
+    .limit (limit_0[DW0-1:0]),
     .hysteresis (hysteresis_0),
     .edge_detect_enable (edge_detect_enable_0),
     .rise_edge_enable (rise_edge_enable_0),
@@ -278,7 +283,7 @@ module axi_trigger #(
     .rst (rst),
     .valid (valid_probes[1]),
     .current_data (probe1),
-    .limit (limit_1),
+    .limit (limit_1[DW1-1:0]),
     .hysteresis (hysteresis_1),
     .edge_detect_enable (edge_detect_enable_1),
     .rise_edge_enable (rise_edge_enable_1),
@@ -299,7 +304,7 @@ module axi_trigger #(
     .rst (rst),
     .valid (valid_probes[2]),
     .current_data (probe2),
-    .limit (limit_2),
+    .limit (limit_2[DW2-1:0]),
     .hysteresis (hysteresis_2),
     .edge_detect_enable (edge_detect_enable_2),
     .rise_edge_enable (rise_edge_enable_2),
@@ -320,7 +325,7 @@ module axi_trigger #(
     .rst (rst),
     .valid (valid_probes[3]),
     .current_data (probe3),
-    .limit (limit_3),
+    .limit (limit_3[DW3-1:0]),
     .hysteresis (hysteresis_3),
     .edge_detect_enable (edge_detect_enable_3),
     .rise_edge_enable (rise_edge_enable_3),

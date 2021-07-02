@@ -16,6 +16,7 @@ GENERIC_DEPS += trigger_ip_regmap.v
 
 XILINX_DEPS += ../xilinx/common/ad_rst_constr.xdc
 XILINX_DEPS += ../xilinx/common/up_xfer_cntrl_constr.xdc
+XILINX_DEPS += ../xilinx/common/ad_data_clk.v
 XILINX_DEPS += axi_trigger_ip.tcl
 
 include ../scripts/library.mk

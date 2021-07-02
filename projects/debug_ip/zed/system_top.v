@@ -106,26 +106,37 @@ module system_top (
   // instantiations
 
   ad_iobuf #(
-    .DATA_WIDTH(11)
+    .DATA_WIDTH(31)
   ) i_iobuf (
-    .dio_t({gpio_t[31:27], gpio_t[10:5]}),
-    .dio_i({gpio_o[31:27], gpio_o[10:5]}),
-    .dio_o({gpio_i[31:27], gpio_i[10:5]}),
-    .dio_p({gpio_bd[31:27], gpio_bd[10:5]}));
- 
+    .dio_t({gpio_t[31:1]}),
+    .dio_i({gpio_o[31:1]}),
+    .dio_o({gpio_i[31:1]}),
+    .dio_p({gpio_bd[31:1]}));
+	
   ad_iobuf #(
-    .DATA_WIDTH(41)
+    .DATA_WIDTH(9)
   ) i_iobuf_debug (
-    .dio_t(41'h1FFFFFFFF),
-    .dio_i({debug_led, 33'h0}),
-    .dio_o({8'b0, debug_probe0, debug_probe1, debug_probe2, debug_probe3, debug_btn_trig_ext}),
+    .dio_t(9'h1FE),
+    .dio_i({debug_led, 1'b0}),
+    .dio_o({8'h0, debug_btn_trig_ext}),
+    .dio_p({
+      gpio_bd[0]		
+  }));
+  
+/*
+  ad_iobuf #(
+    .DATA_WIDTH(33)
+  ) i_iobuf_debug (
+    .dio_t(33'h1FFFFFF),         // 0 001F FFFF
+    .dio_i({debug_led, 25'h0}),  // d dd00 0000
+    .dio_o({debug_probe0, debug_probe1, debug_probe2, debug_probe3, debug_btn_trig_ext}),
     .dio_p({
 		gpio_bd[26:11],
 		gpio_bd[4:0]		
 	}));
+*/
 
-  assign gpio_i[26:11] = gpio_o[26:11];
-  assign gpio_i[4:0] = gpio_o[4:0];
+  assign gpio_i[0] = gpio_o[0];
 
   ad_iobuf #(
     .DATA_WIDTH(2)

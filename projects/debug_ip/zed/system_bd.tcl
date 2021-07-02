@@ -14,13 +14,6 @@ create_bd_port -dir I -from 7 -to 0 debug_probe2
 create_bd_port -dir I -from 7 -to 0 debug_probe3
 create_bd_port -dir O -from 7 -to 0 debug_led
 
-# Create cells
-create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_0
-set_property -dict [list CONFIG.DIN_TO {4} CONFIG.DIN_FROM {11} CONFIG.DIN_WIDTH {8} CONFIG.DIN_FROM {11} CONFIG.DOUT_WIDTH {8}] [get_bd_cells xlslice_0]
-ad_connect debug_probe0                     xlslice_0/Din
-ad_connect debug_led                        xlslice_0/Dout
-
-
 
 # Instances, parameters
 ad_ip_instance axi_trigger axi_trigger
@@ -99,7 +92,7 @@ ad_connect  trigger_fifo/en_r   		     bram_dd/enb
 ad_connect  trigger_fifo/data_out 			 trigger_dmac/fifo_wr_din  
 ad_connect  trigger_fifo/data_out_valid      trigger_dmac/fifo_wr_en   
 
-# logic analyzer DMA
+# axi trigger dma
 ad_connect sys_cpu_clk                       trigger_dmac/m_dest_axi_aclk
 ad_connect sys_cpu_resetn                    trigger_dmac/m_dest_axi_aresetn
 
