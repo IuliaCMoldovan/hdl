@@ -1,7 +1,7 @@
 
 source $ad_hdl_dir/projects/common/zed/zed_system_bd.tcl
 source ../common/fmcomms2_bd.tcl
-
+source $ad_hdl_dir/projects/scripts/adi_pd.tcl
 
 create_bd_port -dir O -from 1 -to 0 trigger_o
 create_bd_port -dir O -from 1 -to 0 trigger_t
