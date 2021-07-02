@@ -89,7 +89,7 @@ module adc_trigger #(
   
   
   // check if internal trigger is active
-  always @(*) begin
+  always @ (*) begin
     case(trigger_adc_rel[1:0])
       2'h0: int_trigger_active = comp_low;
       2'h1: int_trigger_active = comp_high;

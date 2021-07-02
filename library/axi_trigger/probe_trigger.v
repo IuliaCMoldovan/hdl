@@ -101,19 +101,12 @@ module probe_trigger #(
   end
   
   
-  // check relationship between analog and digital trigger
+  // choose if analog or digital trigger
   always @ (*) begin
     case (trigger_type[1:0])
       2'd0: trigger_out_int = 1'b1;
       2'd1: trigger_out_int = trigger_out_dac;
       2'd2: trigger_out_int = trigger_out_adc;
-      //4'd3: trigger_out_int = 1'b0; // reserved
-      //4'd4: trigger_out_int = trigger_out_dac | trigger_out_adc;
-      //4'd5: trigger_out_int = trigger_out_dac & trigger_out_adc;
-      //4'd6: trigger_out_int = trigger_out_dac ^ trigger_out_adc;
-      //4'd7: trigger_out_int = ~(trigger_out_dac | trigger_out_adc);
-      //4'd8: trigger_out_int = ~(trigger_out_dac & trigger_out_adc);
-      //4'd9: trigger_out_int = ~(trigger_out_dac ^ trigger_out_adc);
       default: trigger_out_int = 1'b0; // disable
     endcase
   end
