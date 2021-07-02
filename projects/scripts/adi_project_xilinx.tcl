@@ -47,9 +47,6 @@ set p_prcfg_status ""
 #
 proc adi_project {project_name {mode 0} {parameter_list {}} } {
 
-  set device ""
-  set board ""
-
   # Determine the device based on the board name
   if [regexp "_ac701$" $project_name] {
     set device "xc7a200tfbg676-2"
@@ -126,15 +123,12 @@ proc adi_project_create {project_name mode parameter_list device {board "not-app
   global ADI_USE_OOC_SYNTHESIS
   global ADI_USE_INCR_COMP
 
-  ## update the value of $p_device only if it was not already updated elsewhere
-  if {$p_device eq "none"} {
-    set p_device $device
-  } 
+  set p_device $device
   set p_board $board
 
-  if [regexp "^xc7z" $p_device] {
+  if [regexp "^xc7z" $device] {
     set sys_zynq 1
-  } elseif [regexp "^xczu" $p_device]  {
+  } elseif [regexp "^xczu" $device]  {
     set sys_zynq 2
   } else {
     set sys_zynq 0
@@ -190,10 +184,7 @@ proc adi_project_create {project_name mode parameter_list device {board "not-app
   update_ip_catalog
 
   ## Load custom message severity definitions
-
-  if {![info exists ::env(ADI_DISABLE_MESSAGE_SUPPRESION)]} {
-    source $ad_hdl_dir/projects/scripts/adi_xilinx_msg.tcl
-  }
+  source $ad_hdl_dir/projects/scripts/adi_xilinx_msg.tcl
 
   ## In Vivado there is a limit for the number of warnings and errors which are
   ## displayed by the tool for a particular error or warning; the default value
