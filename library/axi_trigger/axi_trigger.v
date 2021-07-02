@@ -43,6 +43,7 @@ module axi_trigger #(
   parameter   [ 9:0]   DW3 = 10'd4) (
 
   input                clk,
+  input                rst,
 
   input                trigger_ext,
   
@@ -395,8 +396,6 @@ module axi_trigger #(
     .fall_edge_enable_3 (fall_edge_enable_3),
     .low_level_enable_3 (low_level_enable_3),
     .high_level_enable_3 (high_level_enable_3),
-    
-    .rst (rst),
     
     // bus interface
     .up_rstn (up_rstn),
