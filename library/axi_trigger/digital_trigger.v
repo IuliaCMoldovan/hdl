@@ -36,12 +36,12 @@
 `timescale 1ns/100ps
 
 module digital_trigger #(
-  parameter  [ 9:0]  DW = 10'd32) (
+  parameter  [ 9:0]  DW = 10'd4) (
   
   input              clk,
   input              rst,
   
-  input              valid,
+  input              selected,
   
   input  [DW-1 : 0]  current_data,
   input  [DW-1 : 0]  prev_data,
@@ -88,7 +88,7 @@ module digital_trigger #(
       low_level   <= 'b0;
       high_level  <= 'b0;
     end else begin
-      if (valid == 1'b1) begin
+      if (selected == 1'b1) begin
         edge_detect <=  prev_data ^ current_data;
         rise_edge   <= (prev_data ^ current_data) & current_data;
         fall_edge   <= (prev_data ^ current_data) & ~current_data;
@@ -107,7 +107,7 @@ module digital_trigger #(
   
   // based on detected transitions, determine if internal trigger is active
   always @ (*) begin
-    if (valid == 1'b1) begin
+    if (selected == 1'b1) begin
       case (trigger_int_cond)
         // OR
         0: int_trigger_active = |((edge_detect_m & edge_detect_enable) |
@@ -124,7 +124,7 @@ module digital_trigger #(
       	default: int_trigger_active = 1'b1;
       endcase
     end
-    else begin // if probe not valid
+    else begin // if probe not selected
       int_trigger_active = 1'b0;
     end
   end

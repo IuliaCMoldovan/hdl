@@ -22,8 +22,8 @@ ad_ip_parameter trigger_dmac CONFIG.DMA_2D_TRANSFER 0
 ad_ip_parameter trigger_dmac CONFIG.DMA_DATA_WIDTH_SRC 64
 
 ad_ip_instance util_cpack2 util_cpack_trigger { \
-  NUM_OF_CHANNELS 2 \
-  SAMPLE_DATA_WIDTH 16 \
+  NUM_OF_CHANNELS 4 \
+  SAMPLE_DATA_WIDTH 4 \
 }
 
 ad_ip_instance axi_trigger axi_trigger
@@ -34,7 +34,7 @@ ad_ip_parameter axi_trigger CONFIG.DW2 4
 ad_ip_parameter axi_trigger CONFIG.DW3 4
 
 ad_ip_instance util_var_fifo trigger_fifo
-ad_ip_parameter trigger_fifo CONFIG.DATA_WIDTH 16
+ad_ip_parameter trigger_fifo CONFIG.DATA_WIDTH 4
 ad_ip_parameter trigger_fifo CONFIG.ADDRESS_WIDTH 13
 
 ad_ip_instance proc_sys_reset trigger_rstgen
@@ -50,29 +50,11 @@ ad_ip_parameter bram_dd CONFIG.Register_PortB_Output_of_Memory_Primitives {true}
 ad_ip_parameter bram_dd CONFIG.Use_RSTA_Pin {false}
 ad_ip_parameter bram_dd CONFIG.Port_B_Clock {100}
 ad_ip_parameter bram_dd CONFIG.Port_B_Enable_Rate {100}
-ad_ip_parameter bram_dd CONFIG.Write_Width_A {16}
-ad_ip_parameter bram_dd CONFIG.Write_Width_B {16}
-ad_ip_parameter bram_dd CONFIG.Read_Width_B {16}
+ad_ip_parameter bram_dd CONFIG.Write_Width_A {4}
+ad_ip_parameter bram_dd CONFIG.Write_Width_B {4}
+ad_ip_parameter bram_dd CONFIG.Read_Width_B {4}
 ad_ip_parameter bram_dd CONFIG.Write_Depth_A {8192}
 
-#create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 valid_probes_concat
-#set_property -dict [list CONFIG.NUM_PORTS {16}] [get_bd_cells valid_probes_concat]
-#ad_connect util_ad9361_adc_fifo/dout_valid_0              valid_probes_concat/In0
-#ad_connect util_ad9361_adc_fifo/dout_valid_1              valid_probes_concat/In1
-#ad_connect util_ad9361_adc_fifo/dout_valid_2              valid_probes_concat/In2
-#ad_connect util_ad9361_adc_fifo/dout_valid_3              valid_probes_concat/In3
-#ad_connect GND_1/dout                                     valid_probes_concat/In4
-#ad_connect GND_1/dout                                     valid_probes_concat/In5
-#ad_connect GND_1/dout                                     valid_probes_concat/In6
-#ad_connect GND_1/dout                                     valid_probes_concat/In7
-#ad_connect GND_1/dout                                     valid_probes_concat/In8
-#ad_connect GND_1/dout                                     valid_probes_concat/In9
-#ad_connect GND_1/dout                                     valid_probes_concat/In10
-#ad_connect GND_1/dout                                     valid_probes_concat/In11
-#ad_connect GND_1/dout                                     valid_probes_concat/In12
-#ad_connect GND_1/dout                                     valid_probes_concat/In13
-#ad_connect GND_1/dout                                     valid_probes_concat/In14
-#ad_connect GND_1/dout                                     valid_probes_concat/In15
 
 # connections
 ad_connect util_ad9361_adc_fifo/dout_clk                  axi_trigger/clk    
@@ -88,35 +70,26 @@ ad_connect util_ad9361_adc_fifo/dout_valid_2              axi_trigger/valid2
 ad_connect util_ad9361_adc_fifo/dout_valid_3              axi_trigger/valid3
 ad_connect axi_trigger/adc_data0                          util_cpack_trigger/fifo_wr_data_0
 ad_connect axi_trigger/adc_data1                          util_cpack_trigger/fifo_wr_data_1
-#ad_connect axi_trigger/adc_data2                          util_cpack_trigger/fifo_wr_data_2
-#ad_connect axi_trigger/adc_data3                          util_cpack_trigger/fifo_wr_data_3
 ad_connect axi_trigger/out_valid0                         util_cpack_trigger/enable_0
 ad_connect axi_trigger/out_valid1                         util_cpack_trigger/enable_1
-#ad_connect axi_trigger/out_valid2                         util_cpack_trigger/enable_2
-#ad_connect axi_trigger/out_valid3                         util_cpack_trigger/enable_3
 ad_connect axi_trigger/trigger_out                        util_cpack_trigger/fifo_wr_en
-
-#ad_connect valid_probes_concat/dout                       axi_trigger/valid_probes
-
 
 ad_connect sys_rstgen/peripheral_aresetn                  axi_trigger/s_axi_aresetn
 
 ad_connect axi_trigger/adc_data0                          trigger_fifo/data_in
-#ad_connect axi_trigger/data_valids                        trigger_fifo/data_in_valid
+ad_connect axi_trigger/data_valids                        trigger_fifo/data_in_valid
 ad_connect debug_btn_trig_ext                             axi_trigger/trigger_ext
 ad_connect trigger_fifo/depth                             axi_trigger/fifo_depth 
 
-#ad_connect trigger_clk                                    axi_trigger/clk_out
-#ad_connect trigger_clk                                    trigger_fifo/clk
+ad_connect trigger_clk                                    axi_trigger/clk_out
+ad_connect trigger_clk                                    trigger_fifo/clk
 ad_connect util_ad9361_divclk/clk_out                     trigger_fifo/clk
-#ad_connect trigger_clk                                    bram_dd/clkb
-#ad_connect trigger_clk                                    bram_dd/clka
+ad_connect trigger_clk                                    bram_dd/clkb
+ad_connect trigger_clk                                    bram_dd/clka
 
 ad_connect sys_cpu_clk                                    trigger_rstgen/slowest_sync_clk
-# #ad_connect trigger_rstgen/ext_reset_in                    sys_ps7/FCLK_RESET0_N
 
-#ad_connect trigger_rstgen/ext_reset_in                    sys_rstgen/peripheral_aresetn asa era original
-#ad_connect sys_cpu_resetn                                 sys_rstgen/peripheral_aresetn
+ad_connect trigger_rstgen/ext_reset_in                    sys_rstgen/peripheral_aresetn
 ad_connect trigger_rstgen/bus_struct_reset                trigger_fifo/rst
 
 ad_connect trigger_fifo/addr_w                            bram_dd/addra

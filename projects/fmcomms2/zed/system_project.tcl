@@ -13,8 +13,7 @@ adi_project_files fmcomms2_zed [list \
   "$ad_hdl_dir/library/axi_trigger/probe_trigger.v" \
   "$ad_hdl_dir/library/axi_trigger/adc_trigger.v" \
   "$ad_hdl_dir/library/axi_trigger/digital_trigger.v" \
-  "$ad_hdl_dir/library/axi_trigger/trigger_ip_regmap.v" \
-  "$ad_hdl_dir/library/common/ad_iobuf.v"]
+  "$ad_hdl_dir/library/axi_trigger/trigger_ip_regmap.v"]
 
 adi_project_run fmcomms2_zed
 source $ad_hdl_dir/library/axi_ad9361/axi_ad9361_delay.tcl

@@ -36,12 +36,12 @@
 `timescale 1ns/100ps
 
 module probe_trigger #(
-  parameter  [ 9:0]  DW = 10'd32) (
+  parameter  [ 9:0]  DW = 10'd4) (
 
   input              clk,
   input              rst,
 
-  input              valid,
+  input              selected,
 
   input  [DW-1 : 0]  current_data,
   input  [DW-1 : 0]  limit,
@@ -94,7 +94,7 @@ module probe_trigger #(
     if (rst == 1'b1) begin
       prev_data <= 'b0;
     end else begin
-      if (valid == 1'b1) begin
+      if (selected == 1'b1) begin
         prev_data <= current_data;
       end
     end
@@ -119,7 +119,7 @@ module probe_trigger #(
     .rst (rst),
     .current_data (current_data),
     .prev_data(prev_data),
-    .valid (valid),
+    .selected (selected),
     .edge_detect_enable (edge_detect_enable),
     .rise_edge_enable (rise_edge_enable),
     .fall_edge_enable (fall_edge_enable),
@@ -140,7 +140,7 @@ module probe_trigger #(
     .data (current_data),
     .limit (limit),
     .hysteresis (hysteresis),
-    .valid (valid),
+    .selected (selected),
     .trigger_adc_rel (trigger_adc_rel[1 : 0]),
     .trigger_out (trigger_out_adc)
   );
