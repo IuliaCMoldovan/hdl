@@ -38,7 +38,7 @@
 module trigger_ip_regmap (
   input                 clk,
 
-  output      [15:0]    in_sel_data,
+  output      [ 3:0]    valid_probes,
   // condition for internal trigger
   // bit 3: OR(0) / AND(1): the internal trigger condition, 
   // bits [2:0] - relationship between internal and external trigger
@@ -121,7 +121,7 @@ module trigger_ip_regmap (
   reg         [31:0]    up_version = 32'h00020100;
   reg         [31:0]    up_scratch = 'h0;
 
-  reg         [15:0]    up_in_sel_data = 'h0;
+  reg         [ 3:0]    up_valid_probes = 'h0;
   
   reg         [ 3:0]    up_triggers_rel = 'h0;
   
@@ -173,7 +173,7 @@ module trigger_ip_regmap (
         up_wack <= 'h0;
         up_scratch <= 'h0;
       
-        up_in_sel_data <= 'h0;
+        up_valid_probes <= 'h0;
 		
         up_triggers_rel <= 'h0;
         up_trigger_adc_0 <= 'h0;
@@ -222,7 +222,7 @@ module trigger_ip_regmap (
           up_scratch <= up_wdata;
       end
 	  if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h2)) begin
-          up_in_sel_data <= up_wdata[15:0];
+          up_valid_probes <= up_wdata[3:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h3)) begin
           up_triggers_rel <= up_wdata[3:0];
@@ -356,7 +356,7 @@ module trigger_ip_regmap (
             case (up_raddr[4:0])
               5'h0:up_rdata <= up_version;
               5'h1:up_rdata <= up_scratch;
-              5'h2:up_rdata <= {16'h0, up_in_sel_data};
+              5'h2:up_rdata <= {28'h0, up_valid_probes};
               5'h3:up_rdata <= {28'h0, up_triggers_rel};
               5'h4:up_rdata <= {30'h0, up_trigger_type};
               5'h5:up_rdata <= up_fifo_depth;
@@ -403,12 +403,13 @@ module trigger_ip_regmap (
       end
     end
   end
+
   
   // clock domain crossing
-  up_xfer_cntrl #(.DATA_WIDTH(958)) i_xfer_cntrl (
+  up_xfer_cntrl #(.DATA_WIDTH(946)) i_xfer_cntrl (
       .up_rstn (up_rstn),
       .up_clk (up_clk),
-      .up_data_cntrl ({ up_in_sel_data,               // 16
+      .up_data_cntrl ({ up_valid_probes,              //  4
                         up_triggers_rel,              //  4
                         up_trigger_type,              //  2
                         up_fifo_depth,                // 32
@@ -453,7 +454,7 @@ module trigger_ip_regmap (
         .up_xfer_done (),
         .d_rst (1'b0),
         .d_clk (up_clk),
-        .d_data_cntrl ({  in_sel_data,               // 16
+        .d_data_cntrl ({  valid_probes,              //  4
                           triggers_rel,              //  4
                           trigger_type,              //  2
                           fifo_depth,                // 32

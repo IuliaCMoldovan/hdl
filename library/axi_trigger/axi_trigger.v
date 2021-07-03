@@ -47,20 +47,17 @@ module axi_trigger #(
 
   input                trigger_ext,
 
-  input  [DW0-1 : 0]   data_in0,
-  input  [DW1-1 : 0]   data_in1,
-  input  [DW2-1 : 0]   data_in2,
-  input  [DW3-1 : 0]   data_in3,
+  input  [DW0-1 : 0]   probe0,
+  input  [DW1-1 : 0]   probe1,
+  input  [DW2-1 : 0]   probe2,
+  input  [DW3-1 : 0]   probe3,
   
   output [DW0-1 : 0]   data_out0,
   output [DW1-1 : 0]   data_out1,
   output [DW2-1 : 0]   data_out2,
   output [DW3-1 : 0]   data_out3,
-  
-  output               out_selected0,
-  output               out_selected1,
-  output               out_selected2,
-  output               out_selected3,
+
+  output    [ 3:0]     out_valids,
   
   output               trigger_out,
   output               clk_out,
@@ -97,6 +94,7 @@ module axi_trigger #(
   reg                  trigger_out_reg; 
   reg                  trigger_int;
   
+  wire      [ 3:0]     valid_probes;
   // condition for internal trigger
   // bit 3: OR(0) / AND(1): the internal trigger condition, 
   // bits [2:0] - relationship between internal and external trigger
@@ -114,7 +112,7 @@ module axi_trigger #(
   wire      [ 1:0]     trigger_type;
   
   // condition for the internal analog triggering,
-  // compare between the data_in and the limit
+  // compare between the probe and the limit
   // 0 - lower than the limit 
   // 1 - higher than the limit
   // 2 - passing through high limit
@@ -124,28 +122,28 @@ module axi_trigger #(
   wire      [ 1:0]     trigger_adc_2;
   wire      [ 1:0]     trigger_adc_3;
 				   
-  // masks for data that comes from data_in0
+  // masks for data that comes from PROBE 0
   wire   [DW0-1 : 0]   edge_detect_enable_0;
   wire   [DW0-1 : 0]   rise_edge_enable_0;
   wire   [DW0-1 : 0]   fall_edge_enable_0;
   wire   [DW0-1 : 0]   low_level_enable_0;
   wire   [DW0-1 : 0]   high_level_enable_0;
 
-  // masks for data that comes from data_in1
+  // masks for data that comes from PROBE 1
   wire   [DW1-1 : 0]   edge_detect_enable_1;
   wire   [DW1-1 : 0]   rise_edge_enable_1;
   wire   [DW1-1 : 0]   fall_edge_enable_1;
   wire   [DW1-1 : 0]   low_level_enable_1;
   wire   [DW1-1 : 0]   high_level_enable_1;
 
-  // masks for data that comes from data_in2
+  // masks for data that comes from PROBE 2
   wire   [DW2-1 : 0]   edge_detect_enable_2;
   wire   [DW2-1 : 0]   rise_edge_enable_2;
   wire   [DW2-1 : 0]   fall_edge_enable_2;
   wire   [DW2-1 : 0]   low_level_enable_2;
   wire   [DW2-1 : 0]   high_level_enable_2;
 
-  // masks for data that comes from data_in3
+  // masks for data that comes from PROBE 3
   wire   [DW3-1 : 0]   edge_detect_enable_3;
   wire   [DW3-1 : 0]   rise_edge_enable_3;
   wire   [DW3-1 : 0]   fall_edge_enable_3;
@@ -178,30 +176,22 @@ module axi_trigger #(
   wire      [ 4:0]    up_raddr;
   
   // inputs delayed with 1 clock cycle
-  reg    [DW0-1 : 0]   data_in0_d1;
-  reg    [DW1-1 : 0]   data_in1_d1;
-  reg    [DW2-1 : 0]   data_in2_d1;
-  reg    [DW3-1 : 0]   data_in3_d1;
-  reg       [15:0]     in_sel_data_d1;
+  reg    [DW0-1 : 0]   probe0_d1;
+  reg    [DW1-1 : 0]   probe1_d1;
+  reg    [DW2-1 : 0]   probe2_d1;
+  reg    [DW3-1 : 0]   probe3_d1;
+  reg       [15:0]     valid_probes_d1;
   
   // inputs delayed with 2 clock cycles
-  reg    [DW0-1 : 0]   data_in0_d2;
-  reg    [DW1-1 : 0]   data_in1_d2;
-  reg    [DW2-1 : 0]   data_in2_d2;
-  reg    [DW3-1 : 0]   data_in3_d2;
-  reg       [15:0]     in_sel_data_d2;
-  
-  reg       [15:0]     in_sel_data;
-  wire      [15:0]     out_sel_data;
-  
+  reg    [DW0-1 : 0]   probe0_d2;
+  reg    [DW1-1 : 0]   probe1_d2;
+  reg    [DW2-1 : 0]   probe2_d2;
+  reg    [DW3-1 : 0]   probe3_d2;
+  reg       [15:0]     valid_probes_d2;
   // ---------------------------------------------------------------------------
 
   // assign outputs 
-  assign out_sel_data = in_sel_data_d2;
-  assign out_selected0 = out_sel_data[0];
-  assign out_selected1 = out_sel_data[1];
-  assign out_selected2 = out_sel_data[2];
-  assign out_selected3 = out_sel_data[3];
+  assign out_valids = valid_probes_d2;
   
   
   // add buffer for clock
@@ -213,41 +203,41 @@ module axi_trigger #(
   );
 
   
-  // forward the input data and selected to outputs
+  // forward the input data and valid to outputs
   // with 2 clock cycles delay
   always @ (posedge clk) begin
-    data_in0_d1 <= data_in0;
-    data_in1_d1 <= data_in1;
-    data_in2_d1 <= data_in2;
-    data_in3_d1 <= data_in3;
-    in_sel_data_d1 <= in_sel_data;
+    probe0_d1 <= probe0;
+    probe1_d1 <= probe1;
+    probe2_d1 <= probe2;
+    probe3_d1 <= probe3;
+    valid_probes_d1 <= valid_probes;
   end
   always @ (posedge clk) begin
-    data_in0_d2 <= data_in0_d1;
-    data_in1_d2 <= data_in1_d1;
-    data_in2_d2 <= data_in2_d1;
-    data_in3_d2 <= data_in3_d1;
-    in_sel_data_d2 <= in_sel_data_d1;
+    probe0_d2 <= probe0_d1;
+    probe1_d2 <= probe1_d1;
+    probe2_d2 <= probe2_d1;
+    probe3_d2 <= probe3_d1;
+    valid_probes_d2 <= valid_probes_d1;
   end
   
-  assign data_out0 = data_in0_d2;
-  assign data_out1 = data_in1_d2;
-  assign data_out2 = data_in2_d2;
-  assign data_out3 = data_in3_d2;
+  assign data_out0 = probe0_d2;
+  assign data_out1 = probe1_d2;
+  assign data_out2 = probe2_d2;
+  assign data_out3 = probe3_d2;
   
   // signal name changes
   assign trigger_out = trigger_out_reg;
  
  
   // determine if internal trigger occured
-  // condition on each data_in trigger
+  // condition on each probe trigger
   always @ (*) begin
       // OR
     case (triggers_rel[3]) 
-      // consider only data_ins that are selected for monitoring
-      0: trigger_int = | (trigger_out_aux & in_sel_data);
+      // consider only probes that are selected for monitoring
+      0: trigger_int = | (trigger_out_aux & valid_probes);
       // AND
-      1: trigger_int = & (trigger_out_aux | ~in_sel_data); 
+      1: trigger_int = & (trigger_out_aux | ~valid_probes); 
       default: trigger_int = 1'b0;
     endcase
   end
@@ -267,14 +257,14 @@ module axi_trigger #(
   end
    
    
-  // data_in 0 
+  // probe 0 
   probe_trigger #(
     .DW (DW0)
   ) trigger_probe0 (
     .clk (clk),
     .rst (rst),
-    .selected (in_sel_data[0]),
-    .current_data (data_in0),
+    .valid (valid_probes[0]),
+    .current_data (probe0),
     .limit (limit_0[DW0-1:0]),
     .hysteresis (hysteresis_0),
     .edge_detect_enable (edge_detect_enable_0),
@@ -288,14 +278,14 @@ module axi_trigger #(
     .trigger_out (trigger_out_aux[0])
   );
  
-  // data_in 1 
+  // probe 1 
   probe_trigger #(
     .DW (DW1)
   ) trigger_probe1 (
     .clk (clk),
     .rst (rst),
-    .selected (in_sel_data[1]),
-    .current_data (data_in1),
+    .valid (valid_probes[1]),
+    .current_data (probe1),
     .limit (limit_1[DW1-1:0]),
     .hysteresis (hysteresis_1),
     .edge_detect_enable (edge_detect_enable_1),
@@ -309,14 +299,14 @@ module axi_trigger #(
     .trigger_out (trigger_out_aux[1])
   );
 
-  // data_in 2 
+  // probe 2 
   probe_trigger #(
     .DW (DW2)
   ) trigger_probe2 (
     .clk (clk),
     .rst (rst),
-    .selected (in_sel_data[2]),
-    .current_data (data_in2),
+    .valid (valid_probes[2]),
+    .current_data (probe2),
     .limit (limit_2[DW2-1:0]),
     .hysteresis (hysteresis_2),
     .edge_detect_enable (edge_detect_enable_2),
@@ -330,14 +320,14 @@ module axi_trigger #(
     .trigger_out (trigger_out_aux[2])
   );
  
-  // data_in 3 
+  // probe 3 
   probe_trigger #(
     .DW (DW3)
   ) trigger_probe3 (
     .clk (clk),
     .rst (rst),
-    .selected (in_sel_data[3]),
-    .current_data (data_in3),
+    .valid (valid_probes[3]),
+    .current_data (probe3),
     .limit (limit_3[DW3-1:0]),
     .hysteresis (hysteresis_3),
     .edge_detect_enable (edge_detect_enable_3),
@@ -361,7 +351,7 @@ module axi_trigger #(
   trigger_ip_regmap i_regmap (
     .clk (clk),
     
-    .in_sel_data (in_sel_data),
+    .valid_probes (valid_probes),
     .triggers_rel (triggers_rel),
 
     .trigger_adc_0 (trigger_adc_0),

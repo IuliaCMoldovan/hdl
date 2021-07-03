@@ -41,7 +41,7 @@ module probe_trigger #(
   input              clk,
   input              rst,
 
-  input              selected,
+  input              valid,
 
   input  [DW-1 : 0]  current_data,
   input  [DW-1 : 0]  limit,
@@ -94,7 +94,7 @@ module probe_trigger #(
     if (rst == 1'b1) begin
       prev_data <= 'b0;
     end else begin
-      if (selected == 1'b1) begin
+      if (valid == 1'b1) begin
         prev_data <= current_data;
       end
     end
@@ -119,7 +119,7 @@ module probe_trigger #(
     .rst (rst),
     .current_data (current_data),
     .prev_data(prev_data),
-    .selected (selected),
+    .valid (valid),
     .edge_detect_enable (edge_detect_enable),
     .rise_edge_enable (rise_edge_enable),
     .fall_edge_enable (fall_edge_enable),
@@ -140,7 +140,7 @@ module probe_trigger #(
     .data (current_data),
     .limit (limit),
     .hysteresis (hysteresis),
-    .selected (selected),
+    .valid (valid),
     .trigger_adc_rel (trigger_adc_rel[1 : 0]),
     .trigger_out (trigger_out_adc)
   );

@@ -42,7 +42,7 @@ module adc_trigger #(
   input              clk,
   input              rst,
 
-  input              selected,
+  input              valid,
 
   input  [DW-1 : 0]  data,
   input  [DW-1 : 0]  limit,
@@ -111,7 +111,7 @@ module adc_trigger #(
       hyst_low_limit_pass <= 1'b0;
       hyst_high_limit_pass <= 1'b0;
     end else begin
-      if (selected == 1'b1) begin
+      if (valid == 1'b1) begin
         hyst_high_limit <= limit_comp + hysteresis[DW-1:0];
         hyst_low_limit  <= limit_comp - hysteresis[DW-1:0];
 
