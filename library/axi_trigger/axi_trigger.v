@@ -53,14 +53,24 @@ module axi_trigger #(
   input  [DW2-1 : 0]   probe2,
   input  [DW3-1 : 0]   probe3,
 
-  output    [15:0]     data_valids,
-  output               trigger_out,
-  output               clk_out,
+  input                valid0,
+  input                valid1,
+  input                valid2,
+  input                valid3,
   
   output [DW0-1 : 0]   adc_data0,
   output [DW1-1 : 0]   adc_data1,
   output [DW2-1 : 0]   adc_data2,
   output [DW3-1 : 0]   adc_data3,
+  
+  output               out_valid0,
+  output               out_valid1,
+  output               out_valid2,
+  output               out_valid3,
+  
+  output               trigger_out,
+  output               clk_out,
+  
 
   // fifo
   output    [31:0]     fifo_depth,
@@ -94,7 +104,6 @@ module axi_trigger #(
   reg                  trigger_out_reg; 
   reg                  trigger_int;
   
-  wire      [15:0]     valid_probes;
   // condition for internal trigger
   // bit 3: OR(0) / AND(1): the internal trigger condition, 
   // bits [2:0] - relationship between internal and external trigger
@@ -188,10 +197,23 @@ module axi_trigger #(
   reg    [DW2-1 : 0]   probe2_d2;
   reg    [DW3-1 : 0]   probe3_d2;
   reg       [15:0]     valid_probes_d2;
+  
+  wire      [15:0]     valid_probes;
+  wire      [15:0]     data_valids;
+  wire      [15:0]     out_valids;
+  
   // ---------------------------------------------------------------------------
+
+  // concat all valid signals
+  assign valid_probes[15:0] = {12'h0, valid3, valid2, valid1, valid0};
 
   // assign outputs 
   assign data_valids = valid_probes_d2;
+  assign {out_valid2, out_valid1, out_valid0} = data_valids[2:0];
+  //assign out_valid1 = data_valids[1];
+  //assign out_valid2 = data_valids[2];
+  assign out_valid3 = data_valids[3];
+  
   
   
   // add buffer for clock

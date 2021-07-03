@@ -128,13 +128,15 @@ module system_top (
   wire    [ 1:0]  iic_mux_sda_i_s;
   wire    [ 1:0]  iic_mux_sda_o_s;
   wire            iic_mux_sda_t_s;
+  wire            debug_btn_trig_ext;
+  wire    [ 7:0]  debug_led;
 
   // instantiations
 
   ad_iobuf #(.DATA_WIDTH(49)) i_iobuf_gpio (
-    .dio_t ({gpio_t[50:49], gpio_t[46:0]}),
-    .dio_i ({gpio_o[50:49], gpio_o[46:0]}),
-    .dio_o ({gpio_i[50:49], gpio_i[46:0]}),
+    .dio_t ({gpio_t[50:49], gpio_i[46:27], gpio_i[18:1]}),
+    .dio_i ({gpio_o[50:49], gpio_i[46:27], gpio_i[18:1]}),
+    .dio_o ({gpio_i[50:49], gpio_i[46:27], gpio_i[18:1]}),
     .dio_p ({ gpio_muxout_tx,
               gpio_muxout_rx,
               gpio_resetb,
@@ -144,8 +146,21 @@ module system_top (
               gpio_status,
               gpio_bd}));
 
+  ad_iobuf #(
+    .DATA_WIDTH(9)
+  ) i_iobuf_debug (
+    .dio_t(9'h1FE),
+    .dio_i({debug_led, 1'b0}),
+    .dio_o({8'h0, debug_btn_trig_ext}),
+    .dio_p({
+      gpio_bd[26:19],		
+      gpio_bd[0]		
+  }));
+
   assign gpio_i[63:51] = gpio_o[63:51];
   assign gpio_i[48:47] = gpio_o[48:47];
+  assign gpio_i[26:19] = gpio_o[26:19];
+  assign gpio_i[0] = gpio_o[0];
 
    ad_iobuf #(.DATA_WIDTH(2)) i_iobuf_iic_scl (
     .dio_t ({iic_mux_scl_t_s,iic_mux_scl_t_s}),
@@ -240,7 +255,9 @@ module system_top (
     .enable (enable),
     .txnrx (txnrx),
     .up_enable (gpio_o[47]),
-    .up_txnrx (gpio_o[48]));
+    .up_txnrx (gpio_o[48]),
+    .debug_btn_trig_ext(debug_btn_trig_ext),
+    .debug_led(debug_led));
 
 endmodule
 
