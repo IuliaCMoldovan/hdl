@@ -453,7 +453,7 @@ module trigger_ip_regmap (
 
         .up_xfer_done (),
         .d_rst (1'b0),
-        .d_clk (up_clk),
+        .d_clk (clk),
         .d_data_cntrl ({  valid_probes,              //  4
                           triggers_rel,              //  4
                           trigger_type,              //  2
