@@ -36,7 +36,7 @@
 `timescale 1ns/100ps
 
 module digital_trigger #(
-  parameter  [ 9:0]  DW = 10'd4) (
+  parameter  [ 9:0]  DW = 10'd32) (
   
   input              clk,
   input              rst,
@@ -59,6 +59,8 @@ module digital_trigger #(
 
   output             trigger_out
 );
+  // SIGNAL IS ALREADY DELAYED 
+  //reg    [DW-1 : 0]  prev_data = 'b0;
 
   reg    [DW-1 : 0]  edge_detect;
   reg    [DW-1 : 0]  rise_edge;
@@ -77,6 +79,19 @@ module digital_trigger #(
 
   // signal name changes 
   assign trigger_out = int_trigger_active;
+   
+
+  // SIGNAL IS ALREADY DELAYED 
+  // delay signals 
+  //always @ (posedge clk) begin
+  //  if (rst == 1'b1) begin
+  //    prev_data <= 'b0;
+  //  end else begin
+  //    if (valid == 1'b1) begin
+  //      prev_data <= current_data;
+  //    end
+  //  end
+  //end
   
   
   // detect transition

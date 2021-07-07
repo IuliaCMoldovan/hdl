@@ -95,6 +95,7 @@ ad_connect Vcc_const/dout                                 util_cpack_trigger/ena
 ad_connect Vcc_const/dout                                 util_cpack_trigger/enable_1
 ad_connect Vcc_const/dout                                 util_cpack_trigger/enable_2
 ad_connect Vcc_const/dout                                 util_cpack_trigger/enable_3
+
 #create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 out_valid0_slice
 #set_property -dict [list CONFIG.DIN_WIDTH {4} CONFIG.DIN_TO {0} CONFIG.DIN_FROM {0}] [get_bd_cells out_valid0_slice]
 #ad_connect axi_trigger/out_valids                         out_valid0_slice/Din
@@ -115,42 +116,40 @@ ad_connect Vcc_const/dout                                 util_cpack_trigger/ena
 #ad_connect axi_trigger/out_valids                         out_valid3_slice/Din
 #ad_connect out_valid3_slice/Dout                          util_cpack_trigger/enable_3
 
+# 
+create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 packed_fifo_data_slice0
+set_property -dict [list CONFIG.DIN_TO {0} CONFIG.DIN_FROM {15} CONFIG.DIN_WIDTH {64}] [get_bd_cells packed_fifo_data_slice0]
+ad_connect util_ad9361_adc_pack/packed_fifo_wr_data       packed_fifo_data_slice0/Din
+ad_connect packed_fifo_data_slice0/Dout                   axi_trigger/probe0
+
+create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 packed_fifo_data_slice1
+set_property -dict [list CONFIG.DIN_TO {16} CONFIG.DIN_FROM {31} CONFIG.DIN_WIDTH {64}] [get_bd_cells packed_fifo_data_slice1]
+ad_connect axi_trigger/out_valids                         packed_fifo_data_slice1/Din
+ad_connect packed_fifo_data_slice1/Dout                   axi_trigger/probe1
+
+create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 packed_fifo_data_slice2
+set_property -dict [list CONFIG.DIN_TO {32} CONFIG.DIN_FROM {47} CONFIG.DIN_WIDTH {64}] [get_bd_cells packed_fifo_data_slice2]
+ad_connect axi_trigger/out_valids                         packed_fifo_data_slice2/Din
+ad_connect packed_fifo_data_slice2/Dout                   axi_trigger/probe2
+
+create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 packed_fifo_data_slice3
+set_property -dict [list CONFIG.DIN_TO {48} CONFIG.DIN_FROM {63} CONFIG.DIN_WIDTH {64}] [get_bd_cells packed_fifo_data_slice3]
+ad_connect axi_trigger/out_valids                         packed_fifo_data_slice3/Din
+ad_connect packed_fifo_data_slice3/Dout                   axi_trigger/probe3
+
 
 # axi_trigger
 ad_connect util_ad9361_adc_fifo/dout_clk                  axi_trigger/clk    
 ad_connect util_ad9361_adc_fifo/dout_rstn                 axi_trigger/rst
 #ad_connect debug_btn_trig_ext                             axi_trigger/trigger_ext
-ad_connect util_ad9361_adc_fifo/dout_data_0               axi_trigger/probe0
-ad_connect util_ad9361_adc_fifo/dout_data_1               axi_trigger/probe1
-ad_connect util_ad9361_adc_fifo/dout_data_2               axi_trigger/probe2
-ad_connect util_ad9361_adc_fifo/dout_data_3               axi_trigger/probe3
+
+# not ok because of packetized data. should take data after cpack packs them
+#ad_connect util_ad9361_adc_fifo/dout_data_0               axi_trigger/probe0
+#ad_connect util_ad9361_adc_fifo/dout_data_1               axi_trigger/probe1
+#ad_connect util_ad9361_adc_fifo/dout_data_2               axi_trigger/probe2
+#ad_connect util_ad9361_adc_fifo/dout_data_3               axi_trigger/probe3
 ad_connect sys_rstgen/peripheral_aresetn                  axi_trigger/s_axi_aresetn
 
-# must add a logic to use these too, alongside with the valids for selected probes
-# ad_connect util_ad9361_adc_fifo/dout_valid_0              axi_trigger/
-# ad_connect util_ad9361_adc_fifo/dout_valid_1              axi_trigger/
-# ad_connect util_ad9361_adc_fifo/dout_valid_2              axi_trigger/
-# ad_connect util_ad9361_adc_fifo/dout_valid_3              axi_trigger/
-# 
-# trigger_fifo
-# ad_connect util_ad9361_divclk/clk_out                     trigger_fifo/clk
-# ad_connect axi_trigger/data_out0                          trigger_fifo/data_in
-# ad_connect axi_trigger/out_valids                         trigger_fifo/data_in_valid
-# ad_connect trigger_fifo/depth                             axi_trigger/fifo_depth 
-                                  
-# ad_connect axi_trigger/clk_out                            trigger_fifo/clk
-# ad_connect trigger_clk                                    bram_dd/clkb
-# ad_connect trigger_clk                                    bram_dd/clka
-# ad_connect trigger_rstgen/ext_reset_in                    sys_rstgen/peripheral_aresetn
-# ad_connect trigger_rstgen/bus_struct_reset                trigger_fifo/rst
-
-# ad_connect trigger_fifo/addr_w                            bram_dd/addra
-# ad_connect trigger_fifo/din_w                             bram_dd/dina
-# ad_connect trigger_fifo/en_w                              bram_dd/ena
-# ad_connect trigger_fifo/wea_w                             bram_dd/wea
-# ad_connect trigger_fifo/addr_r                            bram_dd/addrb
-# ad_connect trigger_fifo/dout_r                            bram_dd/doutb
-# ad_connect trigger_fifo/en_r                              bram_dd/enb
 
 
 # interconnects

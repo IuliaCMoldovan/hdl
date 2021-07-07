@@ -106,7 +106,7 @@ module system_top (
   inout                   gpio_en_agc,
   inout       [ 3:0]      gpio_ctl,
   inout       [ 7:0]      gpio_status,
-  inout                   debug_btn_trig_ext_bd,
+  //inout                   debug_btn_trig_ext_bd,
 
   output                  spi_csn,
   output                  spi_clk,

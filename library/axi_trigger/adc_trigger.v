@@ -36,7 +36,7 @@
 `timescale 1ns/100ps
 
 module adc_trigger #(
-  parameter  [ 9:0]  DW = 10'd4,
+  parameter  [ 9:0]  DW = 10'd32,
   parameter          SIGN_BITS = 2) (
 
   input              clk,
@@ -89,7 +89,7 @@ module adc_trigger #(
   
   
   // check if internal trigger is active
-  always @ (*) begin
+  always @(*) begin
     case(trigger_adc_rel[1:0])
       2'h0: int_trigger_active = comp_low;
       2'h1: int_trigger_active = comp_high;

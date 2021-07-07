@@ -36,7 +36,7 @@
 `timescale 1ns/100ps
 
 module probe_trigger #(
-  parameter  [ 9:0]  DW = 10'd4) (
+  parameter  [ 9:0]  DW = 10'd32) (
 
   input              clk,
   input              rst,
@@ -67,11 +67,10 @@ module probe_trigger #(
   // 3 - passing through low limit 
   input    [ 1:0]    trigger_adc_rel,
 
-  // type of triggering to be applied on input 
-  // 0 - continuous triggering
-  // 1 - analog triggering 
-  // 2 - digital triggering 
-  input    [ 1:0]    trigger_type,
+  // relationship between analog and digital trigger (on all probes)
+  // 0 - analog triggering 
+  // 1 - digital triggering 
+  input              trigger_type,
 
   output             trigger_out
 );
@@ -101,12 +100,11 @@ module probe_trigger #(
   end
   
   
-  // choose if analog or digital trigger
+  // check relationship between analog and digital trigger
   always @ (*) begin
-    case (trigger_type[1:0])
-      2'd0: trigger_out_int = 1'b1;
-      2'd1: trigger_out_int = trigger_out_dac;
-      2'd2: trigger_out_int = trigger_out_adc;
+    case (trigger_type)
+      1'd0: trigger_out_int = trigger_out_adc;
+      1'd1: trigger_out_int = trigger_out_dac;
       default: trigger_out_int = 1'b0; // disable
     endcase
   end
