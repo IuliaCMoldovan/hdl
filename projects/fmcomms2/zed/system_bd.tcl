@@ -96,26 +96,6 @@ ad_connect Vcc_const/dout                                 util_cpack_trigger/ena
 ad_connect Vcc_const/dout                                 util_cpack_trigger/enable_2
 ad_connect Vcc_const/dout                                 util_cpack_trigger/enable_3
 
-#create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 out_valid0_slice
-#set_property -dict [list CONFIG.DIN_WIDTH {4} CONFIG.DIN_TO {0} CONFIG.DIN_FROM {0}] [get_bd_cells out_valid0_slice]
-#ad_connect axi_trigger/out_valids                         out_valid0_slice/Din
-#ad_connect out_valid0_slice/Dout                          util_cpack_trigger/enable_0
-#
-#create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 out_valid1_slice
-#set_property -dict [list CONFIG.DIN_WIDTH {4} CONFIG.DIN_TO {1} CONFIG.DIN_FROM {1}] [get_bd_cells out_valid1_slice]
-#ad_connect axi_trigger/out_valids                         out_valid1_slice/Din
-#ad_connect out_valid1_slice/Dout                          util_cpack_trigger/enable_1
-#
-#create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 out_valid2_slice
-#set_property -dict [list CONFIG.DIN_WIDTH {4} CONFIG.DIN_TO {2} CONFIG.DIN_FROM {2}] [get_bd_cells out_valid2_slice]
-#ad_connect axi_trigger/out_valids                         out_valid2_slice/Din
-#ad_connect out_valid2_slice/Dout                          util_cpack_trigger/enable_2
-#
-#create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 out_valid3_slice
-#set_property -dict [list CONFIG.DIN_WIDTH {4} CONFIG.DIN_TO {3} CONFIG.DIN_FROM {3}] [get_bd_cells out_valid3_slice]
-#ad_connect axi_trigger/out_valids                         out_valid3_slice/Din
-#ad_connect out_valid3_slice/Dout                          util_cpack_trigger/enable_3
-
 # 
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 packed_fifo_data_slice0
 set_property -dict [list CONFIG.DIN_TO {0} CONFIG.DIN_FROM {15} CONFIG.DIN_WIDTH {64}] [get_bd_cells packed_fifo_data_slice0]
@@ -124,17 +104,17 @@ ad_connect packed_fifo_data_slice0/Dout                   axi_trigger/probe0
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 packed_fifo_data_slice1
 set_property -dict [list CONFIG.DIN_TO {16} CONFIG.DIN_FROM {31} CONFIG.DIN_WIDTH {64}] [get_bd_cells packed_fifo_data_slice1]
-ad_connect axi_trigger/out_valids                         packed_fifo_data_slice1/Din
+ad_connect util_ad9361_adc_pack/packed_fifo_wr_data       packed_fifo_data_slice1/Din
 ad_connect packed_fifo_data_slice1/Dout                   axi_trigger/probe1
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 packed_fifo_data_slice2
 set_property -dict [list CONFIG.DIN_TO {32} CONFIG.DIN_FROM {47} CONFIG.DIN_WIDTH {64}] [get_bd_cells packed_fifo_data_slice2]
-ad_connect axi_trigger/out_valids                         packed_fifo_data_slice2/Din
+ad_connect util_ad9361_adc_pack/packed_fifo_wr_data       packed_fifo_data_slice2/Din
 ad_connect packed_fifo_data_slice2/Dout                   axi_trigger/probe2
 
 create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 packed_fifo_data_slice3
 set_property -dict [list CONFIG.DIN_TO {48} CONFIG.DIN_FROM {63} CONFIG.DIN_WIDTH {64}] [get_bd_cells packed_fifo_data_slice3]
-ad_connect axi_trigger/out_valids                         packed_fifo_data_slice3/Din
+ad_connect util_ad9361_adc_pack/packed_fifo_wr_data       packed_fifo_data_slice3/Din
 ad_connect packed_fifo_data_slice3/Dout                   axi_trigger/probe3
 
 
@@ -143,11 +123,6 @@ ad_connect util_ad9361_adc_fifo/dout_clk                  axi_trigger/clk
 ad_connect util_ad9361_adc_fifo/dout_rstn                 axi_trigger/rst
 #ad_connect debug_btn_trig_ext                             axi_trigger/trigger_ext
 
-# not ok because of packetized data. should take data after cpack packs them
-#ad_connect util_ad9361_adc_fifo/dout_data_0               axi_trigger/probe0
-#ad_connect util_ad9361_adc_fifo/dout_data_1               axi_trigger/probe1
-#ad_connect util_ad9361_adc_fifo/dout_data_2               axi_trigger/probe2
-#ad_connect util_ad9361_adc_fifo/dout_data_3               axi_trigger/probe3
 ad_connect sys_rstgen/peripheral_aresetn                  axi_trigger/s_axi_aresetn
 
 
