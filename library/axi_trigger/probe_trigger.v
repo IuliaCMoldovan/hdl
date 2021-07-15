@@ -36,12 +36,12 @@
 `timescale 1ns/100ps
 
 module probe_trigger #(
-  parameter  [ 9:0]  DW = 10'd32) (
+  parameter  [ 9:0]  DW = 10'd16) (
 
   input              clk,
   input              rst,
 
-  input              valid,
+  input              selected,
 
   input  [DW-1 : 0]  current_data,
   input  [DW-1 : 0]  limit,
@@ -67,7 +67,7 @@ module probe_trigger #(
   // 3 - passing through low limit 
   input    [ 1:0]    trigger_adc_rel,
 
-  // relationship between analog and digital trigger (on all probes)
+  // choose if analog or digital trigger
   // 0 - analog triggering 
   // 1 - digital triggering 
   input              trigger_type,
@@ -76,11 +76,10 @@ module probe_trigger #(
 );
 
   wire               trigger_out_adc;
-  wire               trigger_out_dac;
+  wire               trigger_out_dig;
   
   reg    [DW-1 : 0]  prev_data;
   
-  reg                int_trigger_active;
   reg                trigger_out_int;
   // ---------------------------------------------------------------------------
 
@@ -93,18 +92,18 @@ module probe_trigger #(
     if (rst == 1'b1) begin
       prev_data <= 'b0;
     end else begin
-      if (valid == 1'b1) begin
+      if (selected == 1'b1) begin
         prev_data <= current_data;
       end
     end
   end
   
   
-  // check relationship between analog and digital trigger
+  // choose if analog or digital trigger
   always @ (*) begin
     case (trigger_type)
-      1'd0: trigger_out_int = trigger_out_adc;
-      1'd1: trigger_out_int = trigger_out_dac;
+      1'b0: trigger_out_int = trigger_out_adc;
+      1'b1: trigger_out_int = trigger_out_dig;
       default: trigger_out_int = 1'b0; // disable
     endcase
   end
@@ -117,29 +116,28 @@ module probe_trigger #(
     .rst (rst),
     .current_data (current_data),
     .prev_data(prev_data),
-    .valid (valid),
+    .selected (selected),
     .edge_detect_enable (edge_detect_enable),
     .rise_edge_enable (rise_edge_enable),
     .fall_edge_enable (fall_edge_enable),
     .low_level_enable (low_level_enable),
     .high_level_enable (high_level_enable),
     .trigger_int_cond (trigger_int_cond),
-    .trigger_out (trigger_out_dac)
+    .trigger_out (trigger_out_dig)
   );
   
   
   // adc trigger
   adc_trigger #(
-    .DW (DW),
-    .SIGN_BITS(2)
+    .DW (DW)
   ) analog_data_triggering (
     .clk (clk),
     .rst (rst),
     .data (current_data),
     .limit (limit),
     .hysteresis (hysteresis),
-    .valid (valid),
-    .trigger_adc_rel (trigger_adc_rel[1 : 0]),
+    .selected (selected),
+    .trigger_adc_rel (trigger_adc_rel[1:0]),
     .trigger_out (trigger_out_adc)
   );
 endmodule

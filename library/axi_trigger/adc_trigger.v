@@ -36,13 +36,12 @@
 `timescale 1ns/100ps
 
 module adc_trigger #(
-  parameter  [ 9:0]  DW = 10'd32,
-  parameter          SIGN_BITS = 2) (
+  parameter  [ 9:0]  DW = 10'd16) (
 
   input              clk,
   input              rst,
 
-  input              valid,
+  input              selected,
 
   input  [DW-1 : 0]  data,
   input  [DW-1 : 0]  limit,
@@ -60,8 +59,8 @@ module adc_trigger #(
   output            trigger_out
 );
   // internal signals in 2's complement
-  wire signed [DW-SIGN_BITS-1 : 0] data_comp;
-  wire signed [DW-SIGN_BITS-1 : 0] limit_comp;
+  wire signed [DW-1 : 0] data_comp;
+  wire signed [DW-1 : 0] limit_comp;
 
   reg               int_trigger_active;
 
@@ -79,8 +78,8 @@ module adc_trigger #(
   reg               passthrough_low;  // trigger when falling thorugh the limit
   // ---------------------------------------------------------------------------
 
-  assign data_comp = data[DW-3:0];
-  assign limit_comp = limit[DW-3:0];
+  assign data_comp = data[DW-1:0];
+  assign limit_comp = limit[DW-1:0];
   
   assign comp_low = !comp_high;
   
@@ -99,6 +98,7 @@ module adc_trigger #(
     endcase
   end
   
+  
   // compare data 
   always @ (posedge clk) begin
     if (rst == 1'b1) begin
@@ -111,12 +111,17 @@ module adc_trigger #(
       hyst_low_limit_pass <= 1'b0;
       hyst_high_limit_pass <= 1'b0;
     end else begin
-      if (valid == 1'b1) begin
+      if (selected == 1'b1) begin
         hyst_high_limit <= limit_comp + hysteresis[DW-1:0];
         hyst_low_limit  <= limit_comp - hysteresis[DW-1:0];
 
         // with limit
-        comp_high <= (data_comp >= limit_comp) ? 1'b1 : 1'b0;
+        //comp_high <= (data_comp >= limit_comp) ? 1'b1 : 1'b0;
+		if (data_comp >= limit_comp) begin
+          comp_high <= 1'b1;
+        end else begin
+          comp_high <= 1'b0;
+        end
 
         // with hysteresis range
         if (data_comp > hyst_high_limit) begin

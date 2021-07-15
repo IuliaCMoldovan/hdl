@@ -36,12 +36,12 @@
 `timescale 1ns/100ps
 
 module digital_trigger #(
-  parameter  [ 9:0]  DW = 10'd32) (
+  parameter  [ 9:0]  DW = 10'd16) (
   
   input              clk,
   input              rst,
   
-  input              valid,
+  input              selected,
   
   input  [DW-1 : 0]  current_data,
   input  [DW-1 : 0]  prev_data,
@@ -59,8 +59,6 @@ module digital_trigger #(
 
   output             trigger_out
 );
-  // SIGNAL IS ALREADY DELAYED 
-  //reg    [DW-1 : 0]  prev_data = 'b0;
 
   reg    [DW-1 : 0]  edge_detect;
   reg    [DW-1 : 0]  rise_edge;
@@ -79,20 +77,6 @@ module digital_trigger #(
 
   // signal name changes 
   assign trigger_out = int_trigger_active;
-   
-
-  // SIGNAL IS ALREADY DELAYED 
-  // delay signals 
-  //always @ (posedge clk) begin
-  //  if (rst == 1'b1) begin
-  //    prev_data <= 'b0;
-  //  end else begin
-  //    if (valid == 1'b1) begin
-  //      prev_data <= current_data;
-  //    end
-  //  end
-  //end
-  
   
   // detect transition
   always @ (posedge clk) begin
@@ -103,7 +87,7 @@ module digital_trigger #(
       low_level   <= 'b0;
       high_level  <= 'b0;
     end else begin
-      if (valid == 1'b1) begin
+      if (selected == 1'b1) begin
         edge_detect <=  prev_data ^ current_data;
         rise_edge   <= (prev_data ^ current_data) & current_data;
         fall_edge   <= (prev_data ^ current_data) & ~current_data;
@@ -122,7 +106,7 @@ module digital_trigger #(
   
   // based on detected transitions, determine if internal trigger is active
   always @ (*) begin
-    if (valid == 1'b1) begin
+    if (selected == 1'b1) begin
       case (trigger_int_cond)
         // OR
         0: int_trigger_active = |((edge_detect_m & edge_detect_enable) |
@@ -136,10 +120,10 @@ module digital_trigger #(
                                   (fall_edge_m   | ~fall_edge_enable) &
                                   (low_level_m   | ~low_level_enable) &
                                   (high_level_m  | ~high_level_enable));
-      	default: int_trigger_active = 1'b1;
+      	default: int_trigger_active = 1'b0;
       endcase
     end
-    else begin // if probe not valid
+    else begin // if channel not selected
       int_trigger_active = 1'b0;
     end
   end

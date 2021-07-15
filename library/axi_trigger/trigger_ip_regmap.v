@@ -38,7 +38,7 @@
 module trigger_ip_regmap (
   input                 clk,
 
-  output      [ 3:0]    valid_probes,
+  output      [ 3:0]    in_data_en,
   // condition for internal trigger
   // bit 3: OR(0) / AND(1): the internal trigger condition, 
   // bits [2:0] - relationship between internal and external trigger
@@ -61,12 +61,9 @@ module trigger_ip_regmap (
   output      [ 1:0]    trigger_adc_3,
 
   // type of triggering to be applied on input 
-  // 0 - continuous triggering
-  // 1 - analog triggering 
-  // 2 - digital triggering 
-  output      [ 1:0]    trigger_type,
-
-  output      [31:0]    fifo_depth,
+  // 0 - analog triggering 
+  // 1 - digital triggering 
+  output                trigger_type,
 
   // limit for triggering on analog data
   output      [31:0]    limit_0,
@@ -121,7 +118,7 @@ module trigger_ip_regmap (
   reg         [31:0]    up_version = 32'h00020100;
   reg         [31:0]    up_scratch = 'h0;
 
-  reg         [ 3:0]    up_valid_probes = 'h0;
+  reg         [ 3:0]    up_in_data_en = 'h0;
   
   reg         [ 3:0]    up_triggers_rel = 'h0;
   
@@ -129,9 +126,7 @@ module trigger_ip_regmap (
   reg         [ 1:0]    up_trigger_adc_1 = 'h0;
   reg         [ 1:0]    up_trigger_adc_2 = 'h0;
   reg         [ 1:0]    up_trigger_adc_3 = 'h0;
-  reg         [ 1:0]    up_trigger_type = 'h0;
-
-  reg         [31:0]    up_fifo_depth = 'h0;
+  reg                   up_trigger_type = 'h0;
 
   reg         [31:0]    up_limit_0 = 'h0;
   reg         [31:0]    up_limit_1 = 'h0;
@@ -173,7 +168,7 @@ module trigger_ip_regmap (
         up_wack <= 'h0;
         up_scratch <= 'h0;
       
-        up_valid_probes <= 'h0;
+        up_in_data_en <= 'h0;
 		
         up_triggers_rel <= 'h0;
         up_trigger_adc_0 <= 'h0;
@@ -181,8 +176,6 @@ module trigger_ip_regmap (
         up_trigger_adc_2 <= 'h0;
         up_trigger_adc_3 <= 'h0;
         up_trigger_type <= 'h0;
-        
-        up_fifo_depth <= 'd0;
         
         up_edge_detect_enable_0 <= 'h0;
         up_rise_edge_enable_0   <= 'h0;
@@ -222,16 +215,13 @@ module trigger_ip_regmap (
           up_scratch <= up_wdata;
       end
 	  if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h2)) begin
-          up_valid_probes <= up_wdata[3:0];
+          up_in_data_en <= up_wdata[3:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h3)) begin
           up_triggers_rel <= up_wdata[3:0];
       end
       if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h4)) begin
-          up_trigger_type <= up_wdata[1:0];
-      end
-      if ((up_wreq == 1'b1) && (up_waddr[4:0] == 5'h5)) begin
-          up_fifo_depth <= up_wdata;
+          up_trigger_type <= up_wdata[0];
       end
       
       
@@ -356,10 +346,9 @@ module trigger_ip_regmap (
             case (up_raddr[4:0])
               5'h0:up_rdata <= up_version;
               5'h1:up_rdata <= up_scratch;
-              5'h2:up_rdata <= {28'h0, up_valid_probes};
+              5'h2:up_rdata <= {28'h0, up_in_data_en};
               5'h3:up_rdata <= {28'h0, up_triggers_rel};
-              5'h4:up_rdata <= {30'h0, up_trigger_type};
-              5'h5:up_rdata <= up_fifo_depth;
+              5'h4:up_rdata <= {31'h0, up_trigger_type};
               
               5'h10:up_rdata <= up_edge_detect_enable_0;
               5'h11:up_rdata <= up_rise_edge_enable_0;
@@ -406,13 +395,12 @@ module trigger_ip_regmap (
 
   
   // clock domain crossing
-  up_xfer_cntrl #(.DATA_WIDTH(946)) i_xfer_cntrl (
+  up_xfer_cntrl #(.DATA_WIDTH(913)) i_xfer_cntrl (
       .up_rstn (up_rstn),
       .up_clk (up_clk),
-      .up_data_cntrl ({ up_valid_probes,              //  4
+      .up_data_cntrl ({ up_in_data_en,                //  4
                         up_triggers_rel,              //  4
-                        up_trigger_type,              //  2
-                        up_fifo_depth,                // 32
+                        up_trigger_type,              //  1
                         
                         up_high_level_enable_0,       // 32
                         up_low_level_enable_0,        // 32
@@ -454,10 +442,9 @@ module trigger_ip_regmap (
         .up_xfer_done (),
         .d_rst (1'b0),
         .d_clk (clk),
-        .d_data_cntrl ({  valid_probes,              //  4
+        .d_data_cntrl ({  in_data_en,                //  4
                           triggers_rel,              //  4
-                          trigger_type,              //  2
-                          fifo_depth,                // 32
+                          trigger_type,              //  1
                           
                           high_level_enable_0,       // 32
                           low_level_enable_0,        // 32

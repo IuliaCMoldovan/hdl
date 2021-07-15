@@ -106,7 +106,6 @@ module system_top (
   inout                   gpio_en_agc,
   inout       [ 3:0]      gpio_ctl,
   inout       [ 7:0]      gpio_status,
-  //inout                   debug_btn_trig_ext_bd,
 
   output                  spi_csn,
   output                  spi_clk,
@@ -129,7 +128,6 @@ module system_top (
   wire    [ 1:0]  iic_mux_sda_i_s;
   wire    [ 1:0]  iic_mux_sda_o_s;
   wire            iic_mux_sda_t_s;
-  //wire            debug_btn_trig_ext;
 
   // instantiations
 
@@ -145,15 +143,10 @@ module system_top (
               gpio_ctl,
               gpio_status,
               gpio_bd}));
-
-  //ad_iobuf #(.DATA_WIDTH(1)) i_iobuf_trigger_extern (
-  //  .dio_t (1'b1),
-  //  .dio_i (1'b0),
-  //  .dio_o (debug_btn_trig_ext),
-  //  .dio_p (debug_btn_trig_ext_bd));
 	
   assign gpio_i[63:51] = gpio_o[63:51];
   assign gpio_i[48:47] = gpio_o[48:47];
+  assign gpio_i[0] = gpio_bd[0];
 
    ad_iobuf #(.DATA_WIDTH(2)) i_iobuf_iic_scl (
     .dio_t ({iic_mux_scl_t_s,iic_mux_scl_t_s}),
@@ -220,6 +213,7 @@ module system_top (
     .tdd_sync_i (1'b0),
     .tdd_sync_o (),
     .tdd_sync_t (),
+	.debug_btn_trig_ext (gpio_i[0]),
     .spdif (spdif),
     .spi0_clk_i (1'b0),
     .spi0_clk_o (spi_clk),
